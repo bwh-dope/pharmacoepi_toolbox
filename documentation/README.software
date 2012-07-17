@@ -1,0 +1,86 @@
+This software includes open source software from several sources.  Please read the notices below.
+
+============================================================
+=== APACHE POI, APACHE COMMONS, ANY OTHER APACHE SOFTWARE
+============================================================
+
+This product includes software developed by The Apache Software Foundation (http://www.apache.org/).
+
+
+============================================================
+=== SOFTWARE INCLUDED BY APACHE POI
+============================================================
+
+This product contains the DOM4J library (http://www.dom4j.org).
+Copyright 2001-2005 (C) MetaStuff, Ltd. All Rights Reserved.
+
+This product contains parts that were originally based on software from BEA.
+Copyright (c) 2000-2003, BEA Systems, <http://www.bea.com/>.
+
+This product contains W3C XML Schema documents. Copyright 2001-2003 (c)
+World Wide Web Consortium (Massachusetts Institute of Technology, European
+Research Consortium for Informatics and Mathematics, Keio University)
+
+This product contains the Piccolo XML Parser for Java
+(http://piccolo.sourceforge.net/). Copyright 2002 Yuval Oren.
+
+This product contains the chunks_parse_cmds.tbl file from the vsdump program.
+Copyright (C) 2006-2007 Valek Filippov (frob@df.ru)
+
+
+============================================================
+=== LIBSSRCKDTREE-J
+============================================================
+
+This product includes software developed by Daniel F. Savarese and the Savarese Software Research Corporation (http://www.savarese.com/software/libssrckdtree-j/).
+
+
+============================================================
+=== JAMA
+============================================================
+
+This product includes the JAMA matrix library, which is public domain.
+
+
+============================================================
+=== BERKELEY DB JAVA EDITION
+============================================================
+
+/*
+ * Copyright (c) 2002, 2012 Oracle and/or its affiliates.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Redistributions in any form must be accompanied by information on
+ *    how to obtain complete source code for the DB software and any
+ *    accompanying software that uses the DB software.  The source code
+ *    must either be included in the distribution or be available for no
+ *    more than the cost of distribution plus a nominal fee, and must be
+ *    freely redistributable under reasonable conditions.  For an
+ *    executable file, complete source code means the source code for all
+ *    modules it contains.  It does not include source code for modules or
+ *    files that typically accompany the major components of the operating
+ *    system on which the executable file runs.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ORACLE ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+ * NON-INFRINGEMENT, ARE DISCLAIMED.  IN NO EVENT SHALL ORACLE BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+
