@@ -24,10 +24,6 @@
 			<fileset dir="/Users/jeremy/Dropbox/JAR73/Projects/toolbox" includes="**/*"/>
 		</delete>
 		
-		<copy todir="/Users/jeremy/Dropbox/JAR73/Projects/toolbox"
-			file="license.txt">
-		</copy>
-
 		<copy todir="/Users/jeremy/Dropbox/JAR73/Projects/toolbox/sas">
 			<fileset dir="sas">
 			</fileset>
@@ -41,6 +37,10 @@
 		<copy todir="/Users/jeremy/Dropbox/JAR73/Projects/toolbox/documentation">
 			<fileset dir="documentation">
 			</fileset>
+		</copy>
+
+		<copy todir="/Users/jeremy/Dropbox/JAR73/Projects/toolbox"
+		    file="LICENSE">
 		</copy>
 
 		<copy todir="/Users/jeremy/Dropbox/JAR73/Projects/toolbox/java"

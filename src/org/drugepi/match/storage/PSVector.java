@@ -11,8 +11,6 @@ import org.drugepi.match.controllers.MatchController;
 import Jama.Matrix;
 
 public class PSVector {
-	private static final long serialVersionUID = 1L;
-	
 	// make a 2D array in order to transform to matrix quickly
 	private double[][] psVector;
 	private KDTreeKey kdTreeKey;
