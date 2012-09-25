@@ -83,7 +83,7 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 		}
 
 		if (this.hdps.createProfileScores == 1)
-			this.createProfileScoreVariables(6);
+			this.createProfileScoreVariables(12);
 
 		if (this.hdps.createTimeInteractions == 1)
 			this.createTimeInteractionVariables();
@@ -422,20 +422,21 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 		SqlUtils.executeSql(s, sqlBuf.toString());
 		
 		// create variables
+		// !!! do not create variables by copying from var tables, since this
+		// seems to create a concurrency problem
+		// !!! Fix for other fxns that make variables by copying from var table
+		// with type 'Once'
 		sql = String.format(
 				"INSERT INTO %s(dimension_name, var_id, type, dimension_id, code, is_dichotomous) (" +
-				"   SELECT dimension_name, " +
-				"		    NEXT VALUE FOR %s, " +
-				"		   'ProfileScore' AS type, " +
-				"		    dimension_id, code, " +
-				"			1 AS is_dichotomous " +
+				"   SELECT '%s' as dimension_name, NEXT VALUE FOR %s, " +
+				"			'ProfileScore' AS type, %d as dimension_id, code, 1 " +
 				"   FROM %s " +
-				"   WHERE type = 'Once' AND dimension_id = %d" +
 				")",
 				hdpsController.varTableName,
-				hdpsController.varTableIdSequenceName,
-				hdpsController.varTableName,
-				this.dimensionId
+				this.dimensionDescription,
+				this.hdpsController.varTableIdSequenceName,
+				this.dimensionId,
+				this.codeTableName
 		);
 		SqlUtils.executeSql(s, sql);
 		

@@ -782,7 +782,6 @@ public class HdpsDb extends HdpsController
 			this.patientController.closeController();
 			
 			for (HdpsDimensionController dc: this.dimensionsMap.values()) {
-				System.out.printf("Closing dc %s\n", dc.dimensionId);
 				dc.closeController();
 			}
 			

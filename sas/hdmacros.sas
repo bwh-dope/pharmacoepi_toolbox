@@ -426,7 +426,7 @@
 			%let File = %sysfunc(open(&&Dim&L0));
 	
 			%if &File = 0 %then %do;
-				%put ERROR: FILE &Dim&L0 DOES NOT EXIST;
+				%put ERROR: FILE &&Dim&L0 DOES NOT EXIST;
 				%goto EXIT_WITH_ERROR;
 			%end;
 			%else %do;
