@@ -413,7 +413,8 @@ public class ExcelUtils {
 	
 	public static boolean cellIsStringOrBlank(Cell cell)
 	{
-		return ((cell.getCellType() == Cell.CELL_TYPE_STRING) ||
+		return ((cell == null) || 
+				(cell.getCellType() == Cell.CELL_TYPE_STRING) ||
 				(cell.getCellType() == Cell.CELL_TYPE_BLANK));
 	}
 	

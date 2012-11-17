@@ -317,17 +317,16 @@ public class TableCreator extends PharmacoepiTool {
 		String tableId = sheet.getSheetName();
 		String description = sheet.getSheetName();
 		
-		this.addTable(tableId, description);
-//		System.out.printf("Added table %s\n", tableId);
-		
 		Row firstRow = sheet.getRow(0);
-		
 		
 		if (firstRow == null) {
 			System.out.println("Sheet is empty.");
 			return;
 		}
 
+		this.addTable(tableId, description);
+		System.out.printf("Table Creator added table: %s\n", tableId);
+		
 		LinkedHashMap<String, String> footnoteDefs = new LinkedHashMap<String, String>();
 		LinkedHashMap<String, Cell> footnoteLinks = new LinkedHashMap<String, Cell>();
 		
@@ -601,7 +600,8 @@ public class TableCreator extends PharmacoepiTool {
 			 System.out.println("Starting");
 			 TableCreator tm = new TableCreator();
 			 
-			 tm.createTablesFromWorkbook("/Users/jeremy/Dropbox/JAR73/Projects/matching/Three Way Matching Tables.xls");
+			 tm.createTablesFromWorkbook("/Users/jeremy/Dropbox/JAR73/Projects/plasmode/Plasmode Tables.xlsx");
+//			 tm.createTablesFromWorkbook("/Users/jeremy/Dropbox/JAR73/Projects/matching/Three Way Matching Tables.xls");
 			 tm.addCellToTable("Table E1", "ace_rx", "FULL1", "0.264465");
 			 tm.addCellToTable("Table E1", "ace_rx", "FULL2", "0.272683");
 			 tm.addCellToTable("Table E1", "ace_rx", "FULL3", "0.294818");
