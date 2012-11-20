@@ -13,7 +13,7 @@ import org.drugepi.util.*;
 
 import com.sleepycat.persist.*;
 
-public class HdpsLocal extends HdpsController
+public class HdpsLocalController extends HdpsController
 {
 	/*
 	 * ===========================================
@@ -25,7 +25,7 @@ public class HdpsLocal extends HdpsController
 	/**
 	 * Constructor for the hd-PS class using default values for all parameters.
 	 */
-	public HdpsLocal(Hdps hdps)
+	public HdpsLocalController(Hdps hdps)
 	{
 		super(hdps);
 	}

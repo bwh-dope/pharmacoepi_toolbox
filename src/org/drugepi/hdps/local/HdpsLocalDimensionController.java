@@ -29,7 +29,7 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 	// INTERNAL VARIABLES
 	private int varGenerationSequence = 0;
 	
-	private HdpsLocal hdpsController;
+	private HdpsLocalController hdpsController;
 
 	private class NumPatientCodesStore {
 		public int numPatientCodes = 0;
@@ -38,7 +38,7 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 	
 	private HashMap<String, NumPatientCodesStore> numPatientCodes;
 	
-	public HdpsLocalDimensionController(Hdps hdps, HdpsLocal hdpsController) 
+	public HdpsLocalDimensionController(Hdps hdps, HdpsLocalController hdpsController) 
 	{
 		super(hdps);
 		this.hdpsController = hdpsController;

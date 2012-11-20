@@ -13,7 +13,7 @@ import org.drugepi.util.DatabaseRowReader;
 
 public class HdpsDbPatientController extends HdpsPatientController
 {
-	private HdpsDb hdpsController;
+	private HdpsDbController hdpsController;
 	private Connection connection;
 
 	public String patientViewName;
@@ -22,7 +22,7 @@ public class HdpsDbPatientController extends HdpsPatientController
 	public String outcomeFieldName;
 	public String personTimeFieldName;
 	
-   public HdpsDbPatientController(Hdps hdps, HdpsDb hdpsController)
+   public HdpsDbPatientController(Hdps hdps, HdpsDbController hdpsController)
     {
     	super(hdps);
     	this.hdpsController = hdpsController;
@@ -31,7 +31,7 @@ public class HdpsDbPatientController extends HdpsPatientController
 	public void readPatients()
     throws Exception
     {
-		this.connection = HdpsDb.connectionFactory(this.hdps);
+		this.connection = HdpsDbController.connectionFactory(this.hdps);
 		
 		this.patientViewName = SqlUtils.getTableName("patients", this.hdpsController.randomSuffix);
 		

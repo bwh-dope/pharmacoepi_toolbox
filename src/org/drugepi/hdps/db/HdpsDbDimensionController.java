@@ -15,7 +15,7 @@ import org.drugepi.util.*;
 
 public class HdpsDbDimensionController extends HdpsDimensionController {
 	// INTERNAL VARIABLES
-	private HdpsDb hdpsController;
+	private HdpsDbController hdpsController;
 	
 	private Connection connection;
 	private String dimensionViewName;
@@ -26,14 +26,14 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 	private String patientIdFieldName;
 	private String dateFieldName;  
 	
-	public HdpsDbDimensionController(Hdps hdps, HdpsDb hdpsController) 
+	public HdpsDbDimensionController(Hdps hdps, HdpsDbController hdpsController) 
 	{
 		super(hdps);
 		this.hdpsController = hdpsController;
 	}
 	
 	public void readDimension() throws Exception {
-		this.connection = HdpsDb.connectionFactory(this.hdps);
+		this.connection = HdpsDbController.connectionFactory(this.hdps);
 		
 		this.dimensionViewName = SqlUtils.getTableName(this.getFormattedDimId(), 
 				this.hdpsController.randomSuffix);

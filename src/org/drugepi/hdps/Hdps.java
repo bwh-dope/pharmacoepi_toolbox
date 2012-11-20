@@ -10,8 +10,8 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 import org.drugepi.PharmacoepiTool;
-import org.drugepi.hdps.db.HdpsDb;
-import org.drugepi.hdps.local.HdpsLocal;
+import org.drugepi.hdps.db.HdpsDbController;
+import org.drugepi.hdps.local.HdpsLocalController;
 import org.drugepi.util.RowReader;
 
 
@@ -438,9 +438,9 @@ public class Hdps extends PharmacoepiTool
 	{
 		this.mode = mode;
 		if (this.mode.equalsIgnoreCase(Hdps.hdpsModeLocal)) {
-			this.hdpsController = new HdpsLocal(this);
+			this.hdpsController = new HdpsLocalController(this);
 		} else if (this.mode.equalsIgnoreCase(Hdps.hdpsModeDB)) {
-			this.hdpsController = new HdpsDb(this);
+			this.hdpsController = new HdpsDbController(this);
 		} else {
 			throw new HdpsException(String.format(
 					"Invalid mode %s specified.  Mode must be either LOCAL or DB.", mode));
@@ -574,9 +574,9 @@ public class Hdps extends PharmacoepiTool
 	 */
 	public String getDbPatientTableName() {
 		if ((this.hdpsController != null) &&
-			(this.hdpsController.getClass() ==  HdpsDb.class)) {
+			(this.hdpsController.getClass() ==  HdpsDbController.class)) {
 			
-			HdpsDb d = (HdpsDb) this.hdpsController;
+			HdpsDbController d = (HdpsDbController) this.hdpsController;
 			return d.getPatientTableName();
 		}
 		return null;
@@ -587,9 +587,9 @@ public class Hdps extends PharmacoepiTool
 	 */
 	public String getDbVarTableName() {
 		if ((this.hdpsController != null) &&
-			(this.hdpsController.getClass() ==  HdpsDb.class)) {
+			(this.hdpsController.getClass() ==  HdpsDbController.class)) {
 			
-			HdpsDb d = (HdpsDb) this.hdpsController;
+			HdpsDbController d = (HdpsDbController) this.hdpsController;
 			return d.getVarTableName();
 		}
 		return null;
@@ -600,9 +600,9 @@ public class Hdps extends PharmacoepiTool
 	 */
 	public String getDbPatientVarTableName() {
 		if ((this.hdpsController != null) &&
-			(this.hdpsController.getClass() ==  HdpsDb.class)) {
+			(this.hdpsController.getClass() ==  HdpsDbController.class)) {
 			
-			HdpsDb d = (HdpsDb) this.hdpsController;
+			HdpsDbController d = (HdpsDbController) this.hdpsController;
 			return d.getPatientVarTableName();
 		}
 		return null;

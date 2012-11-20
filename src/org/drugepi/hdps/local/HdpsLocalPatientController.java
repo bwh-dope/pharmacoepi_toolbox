@@ -10,9 +10,9 @@ import org.drugepi.hdps.storage.HdpsPatient;
 
 public class HdpsLocalPatientController extends HdpsPatientController
 {
-	public HdpsLocal hdpsController;
+	public HdpsLocalController hdpsController;
 	
-	public HdpsLocalPatientController(Hdps hdps, HdpsLocal hdpsController)
+	public HdpsLocalPatientController(Hdps hdps, HdpsLocalController hdpsController)
     {
     	super(hdps);
     	this.hdpsController = hdpsController;

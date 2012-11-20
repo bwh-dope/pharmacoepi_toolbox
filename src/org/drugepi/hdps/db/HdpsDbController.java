@@ -12,7 +12,7 @@ import org.drugepi.hdps.*;
 import org.drugepi.hdps.storage.*;
 import org.drugepi.util.*;
 
-public class HdpsDb extends HdpsController
+public class HdpsDbController extends HdpsController
 {
 	private Connection connection;
 	protected String varTableName;
@@ -26,7 +26,7 @@ public class HdpsDb extends HdpsController
 	/**
 	 * Constructor for the hd-PS class using default values for all parameters.
 	 */
-	public HdpsDb(Hdps hdps)
+	public HdpsDbController(Hdps hdps)
 	{
 		super(hdps);
 		dimensionsMap = new HashMap<Integer, HdpsDimensionController>();
@@ -546,7 +546,7 @@ public class HdpsDb extends HdpsController
        			path, sparseOutputFields);
        	}
        	
-       	Connection c = HdpsDb.connectionFactory(this.hdps);
+       	Connection c = HdpsDbController.connectionFactory(this.hdps);
        	Statement s = c.createStatement();
        	String sql;
        	
@@ -771,7 +771,7 @@ public class HdpsDb extends HdpsController
 	protected void startHdps()
 	throws Exception
 	{
-		this.connection = HdpsDb.connectionFactory(this.hdps);
+		this.connection = HdpsDbController.connectionFactory(this.hdps);
 		this.createTables();
 	}
 	

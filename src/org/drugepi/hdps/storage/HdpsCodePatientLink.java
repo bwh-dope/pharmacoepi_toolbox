@@ -7,7 +7,7 @@ package org.drugepi.hdps.storage;
 
 import static com.sleepycat.persist.model.Relationship.MANY_TO_ONE;
 
-import org.drugepi.hdps.local.HdpsLocal;
+import org.drugepi.hdps.local.HdpsLocalController;
 
 import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.model.*;
@@ -51,7 +51,7 @@ public class HdpsCodePatientLink {
 	// get all records whose id starts with the code id
 	// may screw up if code id's aren't the first part of the key
 	// hack.
-	public static EntityCursor<HdpsCodePatientLink> getCursorForCodeId(HdpsLocal hdps, String codeId)
+	public static EntityCursor<HdpsCodePatientLink> getCursorForCodeId(HdpsLocalController hdps, String codeId)
 	{
 		// get all everything that begins with the noted code id
 		// \u007e is the last ascii character
