@@ -91,10 +91,10 @@ public class HdpsTest {
 		} else if (hdpsType == "db") {
 			hdps.setMode("DB");
 
-			String dbDriver = properties.getProperty("DB_DRIVER");
-			String dbURL = properties.getProperty("DB_URL");
-			String dbUser = properties.getProperty("DB_USER");
-			String dbPassword = properties.getProperty("DB_PASSWORD");
+			String dbDriver = properties.getProperty("HDPS_DB_DRIVER");
+			String dbURL = properties.getProperty("HDPS_DB_URL");
+			String dbUser = properties.getProperty("HDPS_DB_USER");
+			String dbPassword = properties.getProperty("HDPS_DB_PASSWORD");
 
 			hdps.addPatients(dbDriver, dbURL, dbUser, dbPassword,
 			"SELECT ssn, i_cox, gi_event FROM nsaid_master");
