@@ -8,6 +8,7 @@ package org.drugepi.util;
 import java.io.*;
 import java.sql.*;
 import java.util.Properties;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import org.apache.commons.lang.*;
 
@@ -19,17 +20,19 @@ import org.apache.commons.lang.*;
  * 
  */
 public class NetezzaDatabaseRowWriter extends RowWriter {
-	private Connection connection;
-	private Statement statement;
-	
-	private String table;
 	private String tempPath;
 	private File tempFile;
     private FileWriter tempFileWriter = null;
     
     private int numCachedRows;
-    private static final int ROWS_TO_CACHE = 50000000;
+    private static final int ROWS_TO_CACHE = 2500000;
 
+    private static DatabaseWriterQueue writerQueue;
+    
+    static {
+    	writerQueue = null;
+    }
+    
     /**
      * TabDelimitedFileWriter constructor.
      * 
@@ -39,6 +42,77 @@ public class NetezzaDatabaseRowWriter extends RowWriter {
     throws Exception
     {
     	super();
+    }
+    
+    /**
+     * Inner class to implement a writer queue.  As temp files are generated, they are put in the queue.
+     * 
+     * This class operates in a separate thread that will pick items off the queue and write them
+     * to the database.  This avoids over-saturation of the network port by having multiple threads
+     * trying to write the database simultaneously.
+     *
+     */
+    private static class DatabaseWriterQueue implements Runnable {
+    	private PriorityBlockingQueue<File> queue;
+		private Connection connection;
+    	private Statement statement;
+    	private String table;
+    	
+    	public DatabaseWriterQueue() {
+    		this.queue = new PriorityBlockingQueue<File>();
+    		this.connection = null;
+    		this.statement = null;
+    		this.table = null;
+    	}
+    	
+    	public void add(File f) {
+    		this.queue.add(f);
+    	}
+    	
+		public void init(Connection connection, String table)
+		throws Exception {
+			this.connection = connection;
+    		this.statement = this.connection.createStatement();
+			this.table = table;
+		}
+
+    	public void run() {
+    		System.out.println("Database writing queue started");
+    		while (true) {
+    			File uploadFile = null;
+    			try {
+    				uploadFile = this.queue.take();
+    			} catch (Exception e) {
+    				e.printStackTrace();
+    			}
+	    		
+	    		try {
+		    		String sql = String.format(
+		    				"INSERT INTO %s " +
+		    				"SELECT * FROM EXTERNAL '%s' " +
+		    				"USING (" +
+		    				"	DELIM '|' REMOTESOURCE 'JDBC'  REQUIREQUOTES TRUE " +
+		    				")",
+		    				this.table,	uploadFile.getCanonicalPath());
+		
+		    		System.out.println("Database writer queue beginning write of " + uploadFile.getCanonicalPath());
+		    		this.statement.execute(sql);
+		    		System.out.println("Database writer queue ending write");
+	    		} catch (Exception e) {
+	    			e.printStackTrace();
+	    		} finally {
+	    			uploadFile.delete();
+	    		}
+    		}
+    	}
+    	
+    	public void finalize()
+    	throws Exception {
+    		if (this.connection != null) {
+    			this.connection.close();
+    			this.connection = null;
+    		}
+    	}
     }
     
     
@@ -116,20 +190,18 @@ public class NetezzaDatabaseRowWriter extends RowWriter {
 	{
 		Class.forName(driverClass);
 
-		this.connection = DriverManager.getConnection(url, properties);
-		this.statement = this.connection.createStatement();
+		// only open a connection the first time this is called
+		// will also start writer queue
+		if (writerQueue == null) {
+			Connection connection = DriverManager.getConnection(url, properties);
+			writerQueue = new DatabaseWriterQueue();
+			writerQueue.init(connection, table);
+			
+			new Thread(writerQueue).start();
+		}
 		
 		this.tempPath = tempPath;
 		openTempFile();
-		
-//		String sql = String.format(
-//				"CREATE EXTERNAL TABLE '%s' SAMEAS %s USING " +
-//				"(" +
-//				"	DELIM ',' REMOTESOURCE 'JDBC' QUOTEDVALUE DOUBLE" +
-//				")", this.tempFile.getName(), table);
-//		statement.execute(sql);
-		
-		this.table = table;
 		
 		this.numCachedRows = 0;
 	}
@@ -162,24 +234,14 @@ public class NetezzaDatabaseRowWriter extends RowWriter {
     {
     	if (this.numCachedRows < ROWS_TO_CACHE) {
     		tempFileWriter.write(
-    				"\"" + StringUtils.join(contents, "\",\"") + "\"\n"
+    				"\"" + StringUtils.join(contents, "\"|\"") + "\"\n"
     		);
     		this.numCachedRows++;
     	} else {
     		this.tempFileWriter.close();
+    		writerQueue.add(this.tempFile);
+
     		this.numCachedRows = 0;
-
-    		String sql = String.format(
-    				"INSERT INTO %s " +
-    				"SELECT * FROM EXTERNAL '%s' " +
-    				"USING (" +
-    				"	DELIM ',' REMOTESOURCE 'JDBC' QUOTEDVALUE DOUBLE REQUIREQUOTES TRUE " +
-    				")",
-    				this.table,	this.tempFile.getCanonicalPath());
-    		System.out.println(sql);
-    		this.statement.execute(sql);
-
-    		this.tempFile.delete();
     		this.openTempFile();
     	}
     }
@@ -190,8 +252,8 @@ public class NetezzaDatabaseRowWriter extends RowWriter {
     public void close()
         throws Exception
     {
-    	this.connection.close();
         tempFileWriter.close();
+        writerQueue.add(this.tempFile);
     }
     
     public String toString()

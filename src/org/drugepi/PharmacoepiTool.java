@@ -38,7 +38,7 @@ public abstract class PharmacoepiTool {
 	public void addPatients(String filePath)
 	throws Exception
 	{		
-		RowReader reader = new TabDelimitedFileReader(filePath);
+		RowReader reader = new DelimitedFileReader(filePath);
 		this.addPatients(reader);
 
 		// note: the implementing tool must close the reader

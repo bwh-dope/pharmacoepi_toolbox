@@ -11,7 +11,7 @@ import java.util.*;
 import org.apache.commons.lang.RandomStringUtils;
 import org.drugepi.hdps.storage.HdpsVariable;
 import org.drugepi.hdps.storage.comparators.*;
-import org.drugepi.util.TabDelimitedFileReader;
+import org.drugepi.util.DelimitedFileReader;
 import org.junit.*;
 
 /**
@@ -137,7 +137,7 @@ public class HdpsTest {
 	private List<HdpsVariable> buildVarsList(String dir, Comparator<HdpsVariable> sortBy) 
 	throws Exception
 	{
-		TabDelimitedFileReader reader = new TabDelimitedFileReader(dir + 
+		DelimitedFileReader reader = new DelimitedFileReader(dir + 
 		"/output_all_vars.txt");
 		String row[];
 
@@ -218,8 +218,8 @@ public class HdpsTest {
 
 	private void checkCohortFile(String dirA, String dirB)
 	throws Exception {
-		TabDelimitedFileReader reader = 
-			new TabDelimitedFileReader(dirA + "/output_full_cohort.txt");
+		DelimitedFileReader reader = 
+			new DelimitedFileReader(dirA + "/output_full_cohort.txt");
 		
 		String row[];
 
@@ -233,7 +233,7 @@ public class HdpsTest {
 		}
 		
 		reader = 
-			new TabDelimitedFileReader(dirB + "/output_full_cohort.txt");
+			new DelimitedFileReader(dirB + "/output_full_cohort.txt");
 		
 		long totalOnesInB = 0;
 		

@@ -73,7 +73,7 @@ public class HdpsLocalController extends HdpsController
        	outputFields[0] = "patient_id";
        	outputFields[1] = "var_list";
 
-       	RowWriter outputWriter = new TabDelimitedFileWriter(
+       	RowWriter outputWriter = new DelimitedFileWriter(
        			Utils.getFilePath(hdps.tempDirectory, hdps.sparseOutputFilename),
        			outputFields);
 		
@@ -132,7 +132,7 @@ public class HdpsLocalController extends HdpsController
        		outputFields[k++] = var.varName;
        	}
 
-       	RowWriter outputWriter = new TabDelimitedFileWriter(
+       	RowWriter outputWriter = new DelimitedFileWriter(
        			Utils.getFilePath(hdps.tempDirectory, hdps.fullOutputFilename),
        			outputFields);
 		

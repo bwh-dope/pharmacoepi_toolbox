@@ -528,7 +528,7 @@ public class HdpsDbController extends HdpsController
        		String path = Utils.getFilePath(hdps.tempDirectory, hdps.fullOutputFilename);
        		
        		System.out.printf("Writing full output file to %s\n", path);
-       		fullOutputWriter = new TabDelimitedFileWriter(
+       		fullOutputWriter = new DelimitedFileWriter(
        			path, fullOutputFields);
        	}
        	
@@ -542,7 +542,7 @@ public class HdpsDbController extends HdpsController
        		String path = Utils.getFilePath(hdps.tempDirectory, hdps.sparseOutputFilename);
        		
        		System.out.printf("Writing sparse output file to %s\n", path);
-       		sparseOutputWriter = new TabDelimitedFileWriter(
+       		sparseOutputWriter = new DelimitedFileWriter(
        			path, sparseOutputFields);
        	}
        	

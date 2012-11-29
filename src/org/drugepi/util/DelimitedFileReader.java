@@ -14,20 +14,22 @@ import java.io.*;
  * @version 1.0.0
  * 
  */
-public class TabDelimitedFileReader extends RowReader {
+public class DelimitedFileReader extends RowReader {
     private FileReader fr;
     private BufferedReader br;
     private String filePath;
+    private String delimiter;
  
     /**
      * TabDelimitedFileReader constructor.
      * 
      * @throws Exception
      */
-    public TabDelimitedFileReader()
+    public DelimitedFileReader()
     throws Exception
     {
     	super();
+    	delimiter = "\\t";
     	fr = null;
     	br = null;
     }
@@ -38,12 +40,26 @@ public class TabDelimitedFileReader extends RowReader {
      * @param filePath  Path of the tab-delimited file to be read.
      * @throws Exception
      */
-    public TabDelimitedFileReader(String filePath)
+    public DelimitedFileReader(String filePath)
+    throws Exception
+    {
+    	this(filePath, "\\t");
+    }
+    
+    /**
+     * TabDelimitedFileReader.  Opens a file at the specified path.
+     * 
+     * @param filePath  Path of the tab-delimited file to be read.
+     * @param delimiter Delimiter to use.  Defaults to tab.
+     * @throws Exception
+     */
+    public DelimitedFileReader(String filePath, String delimiter)
     throws Exception
     {
     	this();
     	
     	this.filePath = filePath;
+    	this.delimiter = delimiter;
     	
         fr = new FileReader(filePath);
         br = new BufferedReader(fr);
@@ -51,10 +67,11 @@ public class TabDelimitedFileReader extends RowReader {
         // toss the first line
         String line = br.readLine();
         if (line != null) {
-            String[] row = line.split("\\t");
+            String[] row = line.split(this.delimiter);
             this.numColumns = row.length;
         }
     }
+
     
      /* (non-Javadoc)
      * @see org.drugepi.util.RowReader#getNextRow()
@@ -66,15 +83,8 @@ public class TabDelimitedFileReader extends RowReader {
 
         String line = br.readLine();
         if (line != null) {
-            row = line.split("\\t");
+            row = line.split(this.delimiter);
         }
-        
-//        // trim quotes around the string
-//        for (int i = 0; i < row.length; i++) {
-//        	if ((row[i].startsWith("\"")) &&
-//        		(row[i].endsWith("\"")))
-//        		row[i] = row[i].substring(1, row[i].length() - 1);
-//        }
 
         return row;
     }

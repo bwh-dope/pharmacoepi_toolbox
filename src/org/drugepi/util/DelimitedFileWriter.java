@@ -7,6 +7,8 @@ package org.drugepi.util;
 
 import java.io.FileWriter;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Write rows of data to a tab-delimited file.
  * 
@@ -14,15 +16,16 @@ import java.io.FileWriter;
  * @version 1.0.0
  * 
  */
-public class TabDelimitedFileWriter extends RowWriter {
+public class DelimitedFileWriter extends RowWriter {
     private FileWriter fw = null;
+    private String delimiter;
 
     /**
      * TabDelimitedFileWriter constructor.
      * 
      * @throws Exception
      */
-    public TabDelimitedFileWriter()
+    public DelimitedFileWriter()
     throws Exception
     {
     	super();
@@ -36,12 +39,10 @@ public class TabDelimitedFileWriter extends RowWriter {
      * 					the file will be replaced.
      * @throws Exception
      */
-    public TabDelimitedFileWriter(String filePath)
+    public DelimitedFileWriter(String filePath)
     throws Exception
     {
-    	this();
-    	
-        fw = new FileWriter(filePath);
+    	this(filePath, "\\t", null);
     }
     
     
@@ -54,13 +55,46 @@ public class TabDelimitedFileWriter extends RowWriter {
      * @param fieldNames  Names of the fields for the header row of the file.
      * @throws Exception
      */
-    public TabDelimitedFileWriter(String filePath, String[] fieldNames)
+    public DelimitedFileWriter(String filePath, String[] fieldNames)
     throws Exception
     {
-    	this(filePath);
+    	this(filePath, "\\t", fieldNames);
+    }
+    
+    /**
+     * TabDelimitedFileWriter constructor.  Opens a file at the specified path for writing
+     * and writes a header row of field names.
+     * 
+     * @param filePath  Path of the tab-delimited file to write.  If it already exists,
+     * 					the file will be replaced.
+     * @param delimiter  Delimiter for this file.
+     * @throws Exception
+     */
+    public DelimitedFileWriter(String filePath, String delimiter)
+    throws Exception
+    {
+    	this(filePath, delimiter, null);
+    }
+    	    
+    /**
+     * TabDelimitedFileWriter constructor.  Opens a file at the specified path for writing
+     * and writes a header row of field names.
+     * 
+     * @param filePath  Path of the tab-delimited file to write.  If it already exists,
+     * 					the file will be replaced.
+     * @param delimiter  Delimiter for this file.
+     * @param fieldNames  Names of the fields for the header row of the file.
+     * @throws Exception
+     */
+    public DelimitedFileWriter(String filePath, String delimiter, String[] fieldNames)
+    throws Exception
+    {
+    	this();
+    	this.delimiter = delimiter;
     	
         fw = new FileWriter(filePath);
-        this.writeHeaderRow(fieldNames);
+        if (fieldNames != null) 
+        	this.writeHeaderRow(fieldNames);
     }
     
     /**
@@ -81,7 +115,7 @@ public class TabDelimitedFileWriter extends RowWriter {
     public synchronized void writeRow(String[] contents)
         throws Exception
     {
-    	fw.write(Utils.tabJoin(contents));
+    	fw.write(StringUtils.join(contents, this.delimiter));
     }
 
     /* (non-Javadoc)

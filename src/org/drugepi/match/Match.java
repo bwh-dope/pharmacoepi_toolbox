@@ -216,7 +216,7 @@ public class Match extends PharmacoepiTool {
 		
 		RowWriter writer;
 		if (this.outfilePath != null)
-			writer = new TabDelimitedFileWriter(this.outfilePath);
+			writer = new DelimitedFileWriter(this.outfilePath);
 		else
 			writer = new StringBufferRowWriter();
 		

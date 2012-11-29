@@ -8,7 +8,7 @@ package org.drugepi.match;
 import static org.junit.Assert.*;
 
 import org.drugepi.match.Match.MatchType;
-import org.drugepi.util.TabDelimitedFileReader;
+import org.drugepi.util.DelimitedFileReader;
 import org.junit.*;
 
 public class TwoWayMatchTest {
@@ -33,8 +33,8 @@ public class TwoWayMatchTest {
 	private void checkOutput(int caseNum)
 	throws Exception
 	{
-		TabDelimitedFileReader matchOutputReader = new TabDelimitedFileReader(this.outfilePath);
-		TabDelimitedFileReader answerReader = new TabDelimitedFileReader("testing/match_test_2way_check.txt");
+		DelimitedFileReader matchOutputReader = new DelimitedFileReader(this.outfilePath);
+		DelimitedFileReader answerReader = new DelimitedFileReader("testing/match_test_2way_check.txt");
 		
 		// toss the first rows
 		answerReader.getNextRow();
