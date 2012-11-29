@@ -43,7 +43,8 @@ public class EmrHandler {
 	 * Class for storing output row data.  Each thread will re-use a single instance.
 	 * 
 	 * Base table SQL:
-	 * CREATE TABLE T_VYT6MO_EMR_NGRAMS (
+	 * 
+	 	CREATE TABLE T_VYT6MO_EMR_NGRAMS (
 		IDCODE 	VARCHAR(20),
 		SCRUB_DATE VARCHAR(19),
 		REPORT_TYPE VARCHAR(33),
@@ -144,6 +145,7 @@ public class EmrHandler {
 				properties.getProperty("EMR_DB_USER"),
 				properties.getProperty("EMR_DB_PASSWORD"),
 				sql);
+		System.out.println("Got database reader for thread " + threadNum);
 		
 		NetezzaDatabaseRowWriter writer = 
 				new NetezzaDatabaseRowWriter(
@@ -153,7 +155,6 @@ public class EmrHandler {
 						properties.getProperty("EMR_DB_PASSWORD"),
 						properties.getProperty("EMR_OUTPUT_TABLE"),
 						properties.getProperty("EMR_TEMP_DIR"));
-		System.out.println("Got database " + threadNum);
 
 		EmrHandler handler = new EmrHandler();
 		EmrOutputRow outputRow = new EmrOutputRow();
@@ -168,7 +169,8 @@ public class EmrHandler {
 				break;
 
 			rowNum += 1;
-			System.out.printf("Processing record %d on thread %d\n", rowNum, threadNum);
+			if (rowNum % 100 == 1) 
+				System.out.printf("Processing Thread %d Record %d\n", threadNum, rowNum);
 
 			outputRow.setPatientId(r[0]);
 			outputRow.setDate(r[1]);
