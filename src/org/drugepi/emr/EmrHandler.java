@@ -18,6 +18,7 @@ import org.drugepi.hdps.storage.HdpsVariable;
 import org.drugepi.util.*;
 import org.jsoup.*;
 import org.jsoup.nodes.*;
+import org.jsoup.parser.Parser;
 import org.jsoup.parser.XmlTreeBuilder;
 import org.jsoup.select.Elements;
 
@@ -65,7 +66,10 @@ public class EmrHandler {
 		public void setReportType(String s) { this.rowData[2] = s; }
 		public void setTypeTag(String s) { this.rowData[3] = s; }
 		public void setLevel(int l) { this.rowData[4] = Integer.toString(l); } 
-		public void setNgram(String s) { this.rowData[5] = s; }
+		public void setNgram(String s) {
+			// hack to fix database delimiter problem
+			this.rowData[5] = s.replace("|",  "[pipe]"); 
+		}
 		
 		public String[] toArray() {
 			return rowData;
@@ -75,34 +79,29 @@ public class EmrHandler {
 	private List<EmrTextBlock> processText(String s) {
 		ArrayList<EmrTextBlock> list = new ArrayList<EmrTextBlock>();
 		
-		Document d = Jsoup.parse(s);
-		
-		// Extract contents of report.  
-		// After parsing, document will be in format:
-		// <html>
-		// <body>
-		// <text_report>
-		
-		// Get body
-		Element body = d.body();
+		Document d = Jsoup.parse(s, "", Parser.xmlParser());
 		
 		// Get text reports
-		Elements textReports = body.getElementsByTag("text_report");
+		Elements textReports = d.getElementsByTag("text_report");
 		for (Element textReport: textReports) {
 			// Get text items
 			Elements textReportBlocks = textReport.getElementsByTag("text");
 			for (Element textReportBlock: textReportBlocks) {
 				EmrTextBlock textBlock = new EmrTextBlock();
+
 				// Get title, if it exists
 				Element title = textReportBlock.getElementsByTag("title").first();
-				if (title != null)
+				if (title != null) 
 					textBlock.title = title.text();
-				
-				// Get text elements
-				// Get all text elements, stored as paragraphs
-				Elements textItems = body.getElementsByTag("p");
-				for (Element textItem: textItems) {
-					textBlock.addTextItem(textItem.text());
+
+				Elements possibleTextItems = textReportBlock.children();
+				// keep anything that's not the title and that has text
+				for (Element possibleTextItem: possibleTextItems) {
+					if ((! possibleTextItem.tagName().equalsIgnoreCase("title")) &&
+						(possibleTextItem.hasText())) {	
+
+						textBlock.addTextItem(possibleTextItem.text());
+					}
 				}
 
 				list.add(textBlock);
@@ -163,7 +162,7 @@ public class EmrHandler {
 		EmrTokenTransformer porterStemmer = new PorterStemmerTransformer();
 
 		long rowNum = 0;
-		while (true) {
+		while (true) { // (rowNum <= 250) {
 			String[] r = reader.getNextRow();
 			if (r == null)
 				break;

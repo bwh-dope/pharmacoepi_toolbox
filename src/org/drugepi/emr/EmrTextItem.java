@@ -12,7 +12,6 @@ import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.drugepi.emr.filters.*;
 import org.drugepi.emr.transformers.EmrTokenTransformer;
-import org.tartarus.snowball.SnowballStemmer;
 
 import opennlp.tools.sentdetect.*;
 import opennlp.tools.tokenize.*;
@@ -33,6 +32,7 @@ public class EmrTextItem {
 	private List<EmrToken> tokens;
 
 	private static HashMap<Integer, EmrTokenResources> resourceMap;
+	private static Object resourceObjectLock = new Object();
 
 	/**
 	 * Class to maintain resources for tokenizing. Each thread must have its own
@@ -74,12 +74,14 @@ public class EmrTextItem {
 	 *            Hash code of current thread.
 	 * @return
 	 */
-	private static synchronized EmrTokenResources createResources(int hashCode) {
-		EmrTokenResources resources = new EmrTokenResources();
-		resources.sentDetector = new SentenceDetectorME(sentModel);
-		resources.tokenizer = new TokenizerME(tokenModel);
-		resourceMap.put(hashCode, resources);
-		return resources;
+	private static EmrTokenResources createResources(int hashCode) {
+		synchronized(resourceObjectLock) {
+			EmrTokenResources resources = new EmrTokenResources();
+			resources.sentDetector = new SentenceDetectorME(sentModel);
+			resources.tokenizer = new TokenizerME(tokenModel);
+			resourceMap.put(hashCode, resources);
+			return resources;
+		}
 	}
 
 	/**
@@ -91,9 +93,8 @@ public class EmrTextItem {
 	private static EmrTokenResources getResources() {
 		int hashCode = Thread.currentThread().hashCode();
 		EmrTokenResources resources = resourceMap.get(hashCode);
-		if (resources == null) {
+		if (resources == null) 
 			resources = createResources(hashCode);
-		}
 		return resources;
 	}
 
