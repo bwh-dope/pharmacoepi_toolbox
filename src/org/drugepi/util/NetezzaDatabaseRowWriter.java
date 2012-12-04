@@ -94,6 +94,7 @@ public class NetezzaDatabaseRowWriter extends RowWriter {
 		    				"SELECT * FROM EXTERNAL '%s' " +
 		    				"USING (" +
 		    				"	DELIM '|' REMOTESOURCE 'JDBC' " +
+		    				"   MAXERRORS 100 " +
 		    				")",
 		    				this.table,	uploadFile.getCanonicalPath());
 		
@@ -263,5 +264,34 @@ public class NetezzaDatabaseRowWriter extends RowWriter {
     public String toString()
     {
     	return null;
+    }
+    
+    public static void main(String[] argv)
+    throws Exception {
+    	String url = argv[0];
+    	String username = argv[1];
+		String password = argv[2];
+		String table = argv[3];
+		String file = argv[4];
+		
+		Class.forName("org.netezza.Driver");
+		Properties properties = new Properties();
+		properties.put("user", username);
+		properties.put("password", password);
+		Connection connection = DriverManager.getConnection(url, properties);
+		
+		String sql = String.format(
+				"INSERT INTO %s " +
+				"SELECT * FROM EXTERNAL '%s' " +
+				"USING (" +
+				"	DELIM '|' REMOTESOURCE 'JDBC' " +
+				"   MAXERRORS 100 " +
+				")",
+				table,	file);
+
+		Statement s = connection.createStatement();
+		System.out.println("Beginning write of " + file);
+		s.execute(sql);
+		System.out.println("Ending write");
     }
 }
