@@ -102,7 +102,9 @@ public class Utils {
 			(d == HdpsVariable.INVALID))
 			return ".";
 		
-		return String.format("%.10f", d);
+		// format for US, for easy SAS input
+		// !!! maybe this is a bad thing? 
+		return String.format(Locale.US, "%.10f", d);
 	}	
 	
 	/**
