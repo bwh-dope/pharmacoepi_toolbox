@@ -11,6 +11,7 @@ import java.util.*;
 
 import org.drugepi.hdps.*;
 import org.drugepi.hdps.storage.HdpsCode;
+import org.drugepi.hdps.storage.HdpsVariable;
 import org.drugepi.util.*;
 
 public class HdpsDbDimensionController extends HdpsDimensionController {
@@ -223,31 +224,37 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 		sql = String.format(
 				"INSERT INTO %s(dimension_name, var_id, type, dimension_id, code, is_dichotomous) (" +
 				"   SELECT '%s' as dimension_name, NEXT VALUE FOR %s, " +
-				"			'Once' AS type, %d as dimension_id, code, 1 " +
+				"			'%s' AS type, %d as dimension_id, code, 1 " +
 				"   FROM %s " +
 				"   WHERE consider_for_ps = 1 " +
 				"   UNION ALL " +
 				"   SELECT '%s' as dimension_name, NEXT VALUE FOR %s, " +
-				"           'Spor' AS type, %d as dimension_id, code, 1 " +
+				"           '%s' AS type, %d as dimension_id, code, 1 " +
 				"   FROM %s " +
 				"   WHERE consider_for_ps = 1 AND median_occurrences > 1 " +
 				"   UNION ALL " +
 				"   SELECT '%s' as dimension_name, NEXT VALUE FOR %s, " +
-				"           'Freq' AS type, %d as dimension_id, code, 1 " +
+				"           '%s' AS type, %d as dimension_id, code, 1 " +
 				"   FROM %s " +
 				"   WHERE consider_for_ps = 1 AND q3_occurrences > median_occurrences" +
 				")",
 				hdpsController.varTableName,
+				
 				this.dimensionDescription,
 				this.hdpsController.varTableIdSequenceName,
+				HdpsVariable.VAR_TYPE_ONCE,
 				this.dimensionId,
 				this.codeTableName,
+				
 				this.dimensionDescription,
 				this.hdpsController.varTableIdSequenceName,
+				HdpsVariable.VAR_TYPE_SPORADIC,
 				this.dimensionId,
 				this.codeTableName,
+				
 				this.dimensionDescription,
 				this.hdpsController.varTableIdSequenceName,
+				HdpsVariable.VAR_TYPE_FREQUENT,
 				this.dimensionId,
 				this.codeTableName
 		);
@@ -258,29 +265,29 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 				"INSERT INTO %s(patient_id, var_id, var_value, standardized_value) (" +
 				"SELECT DISTINCT pc.patient_id, v.var_id, 1, 1 " +
 				"FROM %s pc, %s c, %s v " +
-				"WHERE pc.code = c.code AND c.code = v.code AND v.type = 'Once' AND v.dimension_id = %d AND " +
+				"WHERE pc.code = c.code AND c.code = v.code AND v.type = '%s' AND v.dimension_id = %d AND " +
 				"pc.frequency >= 1 " +
 
 				"UNION ALL " +
 				
 				"SELECT DISTINCT pc.patient_id, v.var_id, 1, 1 " +
 				"FROM %s pc, %s c, %s v " +
-				"WHERE pc.code = c.code AND c.code = v.code AND v.type = 'Spor' AND v.dimension_id = %d AND " +
+				"WHERE pc.code = c.code AND c.code = v.code AND v.type = '%s' AND v.dimension_id = %d AND " +
 				"pc.frequency >= c.median_occurrences " +
 
 				"UNION ALL " +
 				
 				"SELECT DISTINCT pc.patient_id, v.var_id, 1, 1 " +
 				"FROM %s pc, %s c, %s v " +
-				"WHERE pc.code = c.code AND c.code = v.code AND v.type = 'Freq' AND v.dimension_id = %d AND " +
+				"WHERE pc.code = c.code AND c.code = v.code AND v.type = '%s' AND v.dimension_id = %d AND " +
 				"pc.frequency >= c.q3_occurrences " +
 				
 				")",
 				
 				hdpsController.patientVarTableName,
-				this.patientCodeTableName, this.codeTableName, hdpsController.varTableName, this.dimensionId,
-				this.patientCodeTableName, this.codeTableName, hdpsController.varTableName, this.dimensionId,
-				this.patientCodeTableName, this.codeTableName, hdpsController.varTableName, this.dimensionId
+				this.patientCodeTableName, this.codeTableName, hdpsController.varTableName, HdpsVariable.VAR_TYPE_ONCE, this.dimensionId,
+				this.patientCodeTableName, this.codeTableName, hdpsController.varTableName, HdpsVariable.VAR_TYPE_SPORADIC, this.dimensionId,
+				this.patientCodeTableName, this.codeTableName, hdpsController.varTableName, HdpsVariable.VAR_TYPE_FREQUENT, this.dimensionId
 			);
 		SqlUtils.executeSql(s, sql);
 		
@@ -298,7 +305,7 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 				"INSERT INTO %s(dimension_name, var_id, type, dimension_id, code, is_dichotomous) (" +
 				"   SELECT dimension_name, " +
 				"           NEXT VALUE FOR %s, " +  
-				"		   'TimeInt' AS type, " +
+				"		    '%s' AS type, " +
 				"		    dimension_id, code, " +
 				"			0 AS is_dichotomous " +
 				"   FROM %s " +
@@ -306,6 +313,7 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 				")",
 				hdpsController.varTableName,
 				hdpsController.varTableIdSequenceName,
+				HdpsVariable.VAR_TYPE_TIME_INTERACTION,
 				hdpsController.varTableName,
 				this.dimensionId
 		);
@@ -319,12 +327,13 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 				"               ELSE (1 / pc.latest_occurrence) " +
 				"               END AS var_value  " +
 				"FROM %s pc, %s c, %s v " +
-				"WHERE pc.code = c.code AND c.code = v.code AND v.type = 'TimeInt' AND v.dimension_id = %d AND " +
+				"WHERE pc.code = c.code AND c.code = v.code AND v.type = '%s' AND v.dimension_id = %d AND " +
 				"pc.frequency >= 1 " +
 				")",
 				
 				hdpsController.patientVarTableName,
-				this.patientCodeTableName, this.codeTableName, hdpsController.varTableName, this.dimensionId
+				this.patientCodeTableName, this.codeTableName, hdpsController.varTableName, HdpsVariable.VAR_TYPE_TIME_INTERACTION,
+				this.dimensionId
 			);
 //		System.out.println(sql);
 		SqlUtils.executeSql(s, sql);
@@ -429,12 +438,13 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 		sql = String.format(
 				"INSERT INTO %s(dimension_name, var_id, type, dimension_id, code, is_dichotomous) (" +
 				"   SELECT '%s' as dimension_name, NEXT VALUE FOR %s, " +
-				"			'ProfileScore' AS type, %d as dimension_id, code, 1 " +
+				"			'%s' AS type, %d as dimension_id, code, 1 " +
 				"   FROM %s " +
 				")",
 				hdpsController.varTableName,
 				this.dimensionDescription,
 				this.hdpsController.varTableIdSequenceName,
+				HdpsVariable.VAR_TYPE_PROFILE_SCORE,
 				this.dimensionId,
 				this.codeTableName
 		);
@@ -447,11 +457,11 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 				"INSERT INTO %s(patient_id, var_id, var_value) (" +
 				"SELECT DISTINCT profscore.patient_id, v.var_id, profscore.binary_prof_score " +
 				"FROM %s profscore, %s c, %s v " +
-				"WHERE profscore.code = c.code AND c.code = v.code AND v.type = 'ProfileScore' AND v.dimension_id = %d " +
+				"WHERE profscore.code = c.code AND c.code = v.code AND v.type = '%s' AND v.dimension_id = %d " +
 				"      AND profscore.binary_prof_score = 1" +
 				")",
 				hdpsController.patientVarTableName,
-				this.patientProfileScoreTableName, this.codeTableName, hdpsController.varTableName, this.dimensionId
+				this.patientProfileScoreTableName, this.codeTableName, hdpsController.varTableName, HdpsVariable.VAR_TYPE_PROFILE_SCORE, this.dimensionId
 			);
 		SqlUtils.executeSql(s, sql);
 		
@@ -473,7 +483,7 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 					"    NEXT VALUE FOR %s, " +
 					"    RTRIM('D%d_INT_%s_Q%d') AS code, " +
 					"    1 as is_dichotomous, " +
-					"    'ServiceInt' " +
+					"    '%s' " +
 					")",
 					hdpsController.varTableName, 
 					this.dimensionId,
@@ -481,7 +491,8 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 					this.hdpsController.varTableIdSequenceName,
 					this.dimensionId,
 					(uniqueOnly ? "UNIQ" : "ALL"),
-					i
+					i,
+					HdpsVariable.VAR_TYPE_SERVICE_INTENSITY
 				);
 
 			SqlUtils.addToSqlBatch(s, sql);
@@ -525,7 +536,6 @@ public class HdpsDbDimensionController extends HdpsDimensionController {
 				this.patientIdFieldName,
 				this.hdpsController.varTableName
 		);
-		System.out.println(sql);
 		SqlUtils.addToSqlBatch(s, sql);
 
 		SqlUtils.executeSqlBatch(s);

@@ -76,12 +76,17 @@ public class HdpsDbController extends HdpsController
 		Statement s = this.connection.createStatement();
 		String sql = String.format(
 				"SELECT * " +
-				"FROM %s " +
-				"WHERE consider_for_ps = 1",
+				"FROM %s ",
 				this.varTableName
 		);
 		ResultSet r = SqlUtils.executeSqlQuery(s, sql);
 
+		Statement hashStatement = this.connection.createStatement();
+		SqlUtils.addToSqlBatch(hashStatement, 
+				"CREATE TEMPORARY TABLE t_hashmap(var_id int, hash_value varchar(255))");
+		StringBuffer insertSql = new StringBuffer();
+		insertSql.append("INSERT INTO t_hashmap(var_id, hash_value)  ");
+		
 		while (r.next()) {
 			String codeName = r.getString("code");
 			HdpsCode code = new HdpsCode(codeName);
@@ -93,8 +98,36 @@ public class HdpsDbController extends HdpsController
 			
 			HdpsVariable var = new HdpsVariable(code, r);
 			var.code = code;
-			this.variablesToConsider.put(var.varName, var);
+			
+			String h = var.getHashValue();
+			insertSql.append(String.format(
+					"SELECT %d, '%s' UNION ALL ",
+					r.getInt("var_id"), h));
+			
+			if (r.getInt("consider_for_ps") == 1)
+				this.variablesToConsider.put(var.varName, var);
 		}
+		// extra pair at the end is a total hack but fixes the comma/list problem
+		insertSql.append("SELECT -1, ''");
+		SqlUtils.addToSqlBatch(hashStatement, insertSql.toString());
+
+		String updateSql = String.format(
+				"UPDATE %s A " +
+				"SET hash_value = B.hash_value " +
+				"FROM t_hashmap B " +
+				"WHERE A.var_id = B.var_id",
+			this.varTableName);
+		SqlUtils.addToSqlBatch(hashStatement, updateSql);
+
+		// only bother to execute this statement if we're going to keep the table
+		// it's slow, so only do it if necessary
+		if (this.hdps.dbKeepOutputTables > 0) {
+			System.out.println("Updating variables table with hash values.");
+			SqlUtils.executeSqlBatch(hashStatement);
+			System.out.println("Done updating.");
+		}
+		hashStatement.close();
+		
 		r.close();
 		s.close();
 	}
@@ -202,7 +235,6 @@ public class HdpsDbController extends HdpsController
 				this.varTableName,
 				this.varTableName
 			);
-		System.out.println(sql);
 		s.execute(sql);
 		s.close();
 	}
@@ -735,7 +767,8 @@ public class HdpsDbController extends HdpsController
 				"   bias_ranking_var		        double, " +
 				"   bias                double, " +
 				"   consider_for_ps     integer, " +
-				"   selected_for_ps     integer" +
+				"   selected_for_ps     integer," +
+				"   hash_value			varchar(255)" +
 				")",
 				this.varTableName
 			);

@@ -8,16 +8,17 @@ package org.drugepi.hdps.storage;
 import java.sql.ResultSet;
 
 import org.drugepi.hdps.HdpsDimensionController;
+import org.drugepi.hdps.HdpsException;
 import org.drugepi.util.Utils;
 
 @SuppressWarnings({"all"})
 
 public class HdpsCode {
 	public String id;
+    public String codeType;
 	public String codeString;
 	public HdpsDimensionController dimension;
     public boolean considerForPs;
-    public boolean isSpecialCode;
     public boolean usedInPs;
     public double prevalence = -1;
     public int numUniqueOccurrences;
@@ -28,11 +29,19 @@ public class HdpsCode {
     public double median = 0;
     public double q3 = 0;
     
+    // Two code types: standard for those associated with variables, and
+    // "intensity" associated with the special codes made for measuring
+    // intensity.  If new special codes are added, they should each receive
+    // a new code type and possibly a new variable type.
+    public static final String CODE_TYPE_STANDARD = "Standard";
+    public static final String CODE_TYPE_INTENSITY = "Intensity";
+    
+    // Index of where to store associated variable in the variable array
     public static final int kFrequentVarIndex = 0;
     public static final int kSporadicVarIndex = 1;
     public static final int kOnceVarIndex = 2;
-    
-    public static final int kSpecialVarIndex = 0;
+
+    public static final int kIntensityVarIndex = 0;
     
     public HdpsVariable[] vars;
     
@@ -49,11 +58,11 @@ public class HdpsCode {
 	};
     
     public HdpsCode(String id) {
-    	this(id, false);
+    	this(id, CODE_TYPE_STANDARD);
     } 
     
-    public HdpsCode(String id, boolean isSpecialCode) {
-    	this.isSpecialCode = isSpecialCode;
+    public HdpsCode(String id, String codeType) {
+    	this.codeType = codeType;
     	this.considerForPs = false;
         this.usedInPs = false;
         this.id = id;
@@ -132,7 +141,7 @@ public class HdpsCode {
 
     public void calcMedian()
     {
-    	if (this.isSpecialCode) 
+    	if (! this.isStandardCode()) 
     		return;
     	
 		int[] cumulative = new int[HdpsCode.kHistogramMaxBins + 1];
@@ -155,33 +164,42 @@ public class HdpsCode {
     }
     
     private void createVariables() {
-    	if (! isSpecialCode) {
+    	if (this.isStandardCode()) {
 //	        this.vars = new HdpsVariable[4];
 	        this.vars = new HdpsVariable[3];
 	
 //	    	this.vars[kAnyVarIndex] = new HdpsVariable(this, HdpsVariable.kAnyVarType);
-	    	this.vars[kOnceVarIndex] = new HdpsVariable(this, HdpsVariable.kOnceVarType);
-	    	this.vars[kSporadicVarIndex] = new HdpsVariable(this, HdpsVariable.kSporadicVarType);
-	    	this.vars[kFrequentVarIndex] = new HdpsVariable(this, HdpsVariable.kFrequentVarType);
-    	} else {
+	    	this.vars[kOnceVarIndex] = new HdpsVariable(this, HdpsVariable.VAR_TYPE_ONCE);
+	    	this.vars[kSporadicVarIndex] = new HdpsVariable(this, HdpsVariable.VAR_TYPE_SPORADIC);
+	    	this.vars[kFrequentVarIndex] = new HdpsVariable(this, HdpsVariable.VAR_TYPE_FREQUENT);
+    	} else if (this.codeType.equalsIgnoreCase(CODE_TYPE_INTENSITY)) {
 	        this.vars = new HdpsVariable[1];
-	    	
-	    	this.vars[kSpecialVarIndex] = new HdpsVariable(this, HdpsVariable.kSpecialVarType);
+	    	this.vars[kIntensityVarIndex] = new HdpsVariable(this, HdpsVariable.VAR_TYPE_SERVICE_INTENSITY);
+    	} else {
+    		// !!! should really throw an exception
+    		System.out.println("*** *** *** Unknown code type -- this is an error");
     	}
     }
     
     public HdpsVariable getVariableByType(String type)
     {
-    	if (type.equals(HdpsVariable.kOnceVarType))
+    	if (type.equals(HdpsVariable.VAR_TYPE_ONCE))
     		return this.vars[kOnceVarIndex];
     	
-    	if (type.equals(HdpsVariable.kSporadicVarType))
+    	if (type.equals(HdpsVariable.VAR_TYPE_SPORADIC))
     		return this.vars[kSporadicVarIndex];
 
-    	if (type.equals(HdpsVariable.kFrequentVarType))
+    	if (type.equals(HdpsVariable.VAR_TYPE_FREQUENT))
     		return this.vars[kFrequentVarIndex];
 
+    	if (type.equals(HdpsVariable.VAR_TYPE_SERVICE_INTENSITY))
+    		return this.vars[kIntensityVarIndex];
+
     	return null;
+    }
+    
+    public boolean isStandardCode() {
+    	return this.codeType.equalsIgnoreCase(CODE_TYPE_STANDARD);
     }
     
 	public String[] toStringArray() {

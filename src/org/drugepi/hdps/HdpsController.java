@@ -200,26 +200,27 @@ public abstract class HdpsController extends PharmacoepiTool
         	throw new HdpsException("No dimensions specified.");
 	}
 	
-	protected void doOutput()
-	throws Exception
+	protected List<HdpsVariable> selectVariables()
+	throws Exception 
 	{
-        List<HdpsVariable> sortedVariablesToConsider = 
-        	new ArrayList<HdpsVariable>(this.variablesToConsider.values());
+	    List<HdpsVariable> rankedVariables = 
+	            new ArrayList<HdpsVariable>(this.variablesToConsider.values());
 
-    	for (HdpsVariable var: sortedVariablesToConsider) {
-            if ((this.isRankedByExposureAssoc()) || 
-                	(hdps.exposureOnlyScreen > 0))
-               	var.activeRankingVariable = var.expAssocRankingVariable;
-            else if (this.isRankedByOutcomeAssoc()) 
-               	var.activeRankingVariable = var.outcomeAssocRankingVariable;
-            else
-               	var.activeRankingVariable = var.biasRankingVariable;
-    	}
-        
-       	Collections.sort(sortedVariablesToConsider, new HdpsVariableRankingComparator());
+	    	for (HdpsVariable var: rankedVariables) {
+	            if ((this.isRankedByExposureAssoc()) || 
+	                	(hdps.exposureOnlyScreen > 0))
+	               	var.activeRankingVariable = var.expAssocRankingVariable;
+	            else if (this.isRankedByOutcomeAssoc()) 
+	               	var.activeRankingVariable = var.outcomeAssocRankingVariable;
+	            else if (this.isRankedByBias()) 
+	               	var.activeRankingVariable = var.biasRankingVariable;
+	            else
+	            	var.activeRankingVariable = 0;
+	    	}
+       	Collections.sort(rankedVariables, new HdpsVariableRankingComparator());
 
     	List<HdpsVariable> selectedVariables = new ArrayList<HdpsVariable>();
-    	for (HdpsVariable var: sortedVariablesToConsider) {
+    	for (HdpsVariable var: rankedVariables) {
     		if (selectedVariables.size() >= hdps.k)
     			break;
 
@@ -228,13 +229,55 @@ public abstract class HdpsController extends PharmacoepiTool
     			selectedVariables.add(var);
     		}
     	}
+		
+    	return selectedVariables;
+	}
+	
+	protected List<HdpsVariable> getRequestedVariables(List<HdpsVariable> selectedVariables)
+	throws Exception 
+	{
+		List<HdpsVariable> additionalVariables = new ArrayList<HdpsVariable>();
+		
+		if (this.hdps.requestedVariables.size() > 0) {
+			Hashtable<String, HdpsVariable> h = new Hashtable<String, HdpsVariable>();
+			// create a hash of all possible variables
+			for (HdpsVariable var: this.variablesToConsider.values()) {
+				h.put(var.getHashValue(),  var);
+			}
+			
+			// remove those already selected
+			for (HdpsVariable var: selectedVariables) {
+				h.remove(var.getHashValue());
+			}
+			
+			// find those not selected that have been requested
+			for (String requestedVarHash: this.hdps.requestedVariables) {
+				HdpsVariable var = h.remove(requestedVarHash);
+				if (var != null) 
+					additionalVariables.add(var);
+			}
+		}
+		
+		System.out.printf("NOTE: %d variables were requested for output; %d were added\n", 
+				hdps.requestedVariables.size(), additionalVariables.size());
+		
+		return additionalVariables;
+	}
+
+	protected void doOutput()
+	throws Exception
+	{
+		List<HdpsVariable> selectedVariables = this.selectVariables();
+		// add in any requested variables to the output
+		selectedVariables.addAll(this.getRequestedVariables(selectedVariables));
     	
     	ZBiasCalculator.scoreVariables(selectedVariables);
 
     	// sort all of the variables alphabetically and output
-    	Collections.sort(sortedVariablesToConsider, new HdpsVariableNameComparator());
-    	this.writeVariableInfoFile("output_all_vars.txt", sortedVariablesToConsider);
-
+    	List<HdpsVariable> variablesForOutput = new ArrayList<HdpsVariable>();
+    	variablesForOutput.addAll(this.variablesToConsider.values());
+    	Collections.sort(variablesForOutput, new HdpsVariableNameComparator());
+    	this.writeVariableInfoFile("output_all_vars.txt", variablesForOutput);
     	this.writeDimensionInfoFile("output_dimension_codes.txt");
     	
     	// sort the PS variables alphabetically 

@@ -173,7 +173,7 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 			// Make a new code for this quartile
 			String codeString = null;
 			codeString = this.generateServiceIntensityVariableName(i + 1, uniqueOnly);
-			quartileCodes[i] = new HdpsCode(codeString, true);
+			quartileCodes[i] = new HdpsCode(codeString, HdpsCode.CODE_TYPE_INTENSITY);
 			quartileCodes[i].codeString = codeString;
 			quartileCodes[i].dimension = this;
 			quartileCodes[i].considerForPs = true;
@@ -200,11 +200,11 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 					codePatientLink.id = cplId;
 					codePatientLink.patientId = patient.id;
 					codePatientLink.codeId = quartileCodes[j].id;
-					codePatientLink.specialVarValue = 1;
+					codePatientLink.intensityVarValue = 1;
 					this.hdpsController.getCodePatientLinkDatabase().put(codePatientLink);
 					
-					this.updateVarCounts(quartileCodes[j].vars[HdpsCode.kSpecialVarIndex], 
-							codePatientLink.specialVarValue, patient);
+					HdpsVariable var = quartileCodes[j].getVariableByType(HdpsVariable.VAR_TYPE_SERVICE_INTENSITY);
+					this.updateVarCounts(var, codePatientLink.intensityVarValue, patient);
 				}
 			}
 		}
@@ -228,7 +228,7 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 	}
 	
 	private void markOccurrenceType(HdpsCode code) {
-		if (code.isSpecialCode)
+		if (! code.isStandardCode())
 			return;
 	
 		// use primary keys in order to call update() rather than put() below.

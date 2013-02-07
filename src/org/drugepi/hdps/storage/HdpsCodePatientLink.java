@@ -33,7 +33,7 @@ public class HdpsCodePatientLink {
 	public int sporadicVarValue;
 	public int frequentVarValue;
 	public int anyVarValue;
-	public int specialVarValue;
+	public int intensityVarValue;
 
 	public HdpsCodePatientLink() {
     	super();
@@ -61,13 +61,13 @@ public class HdpsCodePatientLink {
 	
     public int getValueForVarType(String type)
     {
-    	if (type.equals(HdpsVariable.kOnceVarType))
+    	if (type.equals(HdpsVariable.VAR_TYPE_ONCE))
     		return this.onceVarValue;
     	
-    	if (type.equals(HdpsVariable.kSporadicVarType))
+    	if (type.equals(HdpsVariable.VAR_TYPE_SPORADIC))
     		return this.sporadicVarValue;
 
-    	if (type.equals(HdpsVariable.kFrequentVarType))
+    	if (type.equals(HdpsVariable.VAR_TYPE_FREQUENT))
     		return this.frequentVarValue;
 
     	return -1;

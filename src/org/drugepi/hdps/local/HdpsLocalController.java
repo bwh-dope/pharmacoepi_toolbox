@@ -173,8 +173,8 @@ public class HdpsLocalController extends HdpsController
         				varValue = cpl.sporadicVarValue;
         			else if (var.isTypeFrequent()) 
         				varValue = cpl.frequentVarValue;
-        			else if (var.isTypeSpecial()) 
-        				varValue = cpl.specialVarValue;
+        			else if (var.isTypeServiceIntensity()) 
+        				varValue = cpl.intensityVarValue;
         			
 					if (varValue == HdpsVariable.valueMissing) 
 						outputFields[fieldIndex] = zeroStr;

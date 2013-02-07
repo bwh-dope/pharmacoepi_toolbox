@@ -7,6 +7,7 @@ package org.drugepi.hdps.storage;
 
 import java.sql.ResultSet;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.drugepi.util.Utils;
 
 public class HdpsVariable  {
@@ -82,10 +83,13 @@ public class HdpsVariable  {
 	public static final int valueZero = 0;
 	
 //    public static final String kAnyVarType = "Any";
-    public static final String kFrequentVarType = "Frequent";
-    public static final String kSporadicVarType = "Spor";
-    public static final String kOnceVarType = "Once";
-    public static final String kSpecialVarType = "Special";
+    public static final String VAR_TYPE_FREQUENT = "Freq";
+    public static final String VAR_TYPE_SPORADIC = "Spor";
+    public static final String VAR_TYPE_ONCE = "Once";
+    public static final String VAR_TYPE_SERVICE_INTENSITY = "ServiceInt";
+    public static final String VAR_TYPE_TIME_INTERACTION = "TimeInt";
+    public static final String VAR_TYPE_PROFILE_SCORE = "ProfScore";
+    
 
     public HdpsVariable()
 	{
@@ -130,7 +134,8 @@ public class HdpsVariable  {
 			"exp_assoc_ranking_var", 	// 33 
 			"outcome_assoc_ranking_var",// 34
 			"bias_assoc_ranking_var", 	// 35 
-			"z_bias_score" 				// 36 
+			"z_bias_score",				// 36
+			"hash_value"				// 37
 		};
     
     public HdpsVariable(HdpsCode code, String type)
@@ -245,22 +250,31 @@ public class HdpsVariable  {
     
 	public boolean isTypeFrequent()
 	{
-		return (this.type == kFrequentVarType);
+		return (this.type == VAR_TYPE_FREQUENT);
 	}
 
 	public boolean isTypeSporadic()
 	{
-		return (this.type == kSporadicVarType);
+		return (this.type == VAR_TYPE_SPORADIC);
 	}
 
 	public boolean isTypeOnce()
 	{
-		return (this.type == kOnceVarType);
+		return (this.type == VAR_TYPE_ONCE);
 	}
 	
-	public boolean isTypeSpecial()
+	public boolean isTypeServiceIntensity()
 	{
-		return (this.type == kSpecialVarType);
+		return (this.type == VAR_TYPE_SERVICE_INTENSITY);
+	}
+	
+	public String getHashValue() {
+		String s = this.code.dimension.dimensionDescription + "/" +
+				   this.code.codeString + "/" +
+				   this.type;
+		
+		String hash = DigestUtils.sha512Hex(s);
+		return hash;
 	}
 	
 	public String[] toStringArray() {
@@ -303,7 +317,8 @@ public class HdpsVariable  {
 			Utils.formatOutputDouble(this.expAssocRankingVariable),
 			Utils.formatOutputDouble(this.outcomeAssocRankingVariable),
 			Utils.formatOutputDouble(this.biasRankingVariable),
-			Integer.toString(this.zBiasScore)
+			Integer.toString(this.zBiasScore),
+			quoteStr + this.getHashValue() + quoteStr
 		};
 		
 		return s;
