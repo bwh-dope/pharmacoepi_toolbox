@@ -277,6 +277,8 @@ public class HdpsDbController extends HdpsController
 				"    e0c1 = 0, " +
 				"    d1c1 = 0, " +
 				"    d0c1 = 0, " +
+				"    pc_e0 = 0, " +
+				"    pc_e1 = 0," +
 				"	 rr_cd = %f, " +
 				"	 rr_ce = %f, " +
 				"	 bias = %f, " +
@@ -412,8 +414,16 @@ public class HdpsDbController extends HdpsController
 
 		sql = String.format(
 				"UPDATE %s " +
-				"SET pc_e1 = e1c1 / e1," +
-				"    pc_e0 = e0c1 / e0",
+				"SET pc_e0 = e0c1 / e0 " +
+				"    WHERE e0 > 0",
+				this.varTableName
+			);
+		SqlUtils.addToSqlBatch(s, sql);
+
+		sql = String.format(
+				"UPDATE %s " +
+				"SET pc_e1 = e1c1 / e1 " +
+				"    WHERE e1 > 0",
 				this.varTableName
 			);
 		SqlUtils.addToSqlBatch(s, sql);

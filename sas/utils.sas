@@ -74,7 +74,7 @@
 
 
 %macro delete_dataset(dsname);
-	PROC DATASETS NOLIST;
+	PROC DATASETS NOLIST NOWARN;
 		DELETE &dsname;
 	RUN;
 %mend;

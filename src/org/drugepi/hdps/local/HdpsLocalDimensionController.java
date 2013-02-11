@@ -360,13 +360,16 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 				var.c0MeanOutcome = -1;
 
 			try {
-//				if (this.hdps.useExpZeroCellCorrection == 1) {
-//					var.pc_e1 = (var.e1c1 + 0.1) / (var.e1 + 0.1);
-//					var.pc_e0 = (var.e0c1 + 0.1) / (var.e0 + 0.1);
-//				} else {
+				if (var.e1 > 0)
 					var.pc_e1 = var.e1c1 / var.e1;
+				else
+					var.pc_e1 = 0;
+				
+				if (var.e0 > 0)
 					var.pc_e0 = var.e0c1 / var.e0;
-//				}
+				else
+					var.pc_e0 = 0;
+				
 				if (var.pc_e1 > 0.5)
 					var.pc_e1 = 1.0 - var.pc_e1;
 				if (var.pc_e0 > 0.5)
