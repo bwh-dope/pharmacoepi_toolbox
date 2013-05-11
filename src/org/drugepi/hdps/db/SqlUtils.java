@@ -7,7 +7,7 @@ package org.drugepi.hdps.db;
 
 import java.sql.*;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class SqlUtils {
 	static int queryCounter = 0;

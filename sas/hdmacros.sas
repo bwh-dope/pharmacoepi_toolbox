@@ -524,6 +524,7 @@
     informat outcome_assoc_ranking_var best32. ;
     informat bias_ranking_var best32. ;
     informat z_bias_score best32. ;
+    informat hash_value $255. ;
 
     input
       dimension $
@@ -563,6 +564,7 @@
       outcome_assoc_ranking_var
       bias_ranking_var
       z_bias_score
+      hash_value $
     ;
   run;
 %mend;
@@ -595,7 +597,7 @@
 %macro hd_InputCohort(in_filename, out_dataset, var_dataset);
   PROC SQL NOPRINT;
     SELECT var_name
-    INTO :var_name_1 - :var_name_&hd_k
+    INTO :var_name_1 - :var_name_10000
     FROM &var_dataset
     WHERE UPPER(selected_for_ps) = 'TRUE';
   QUIT;
@@ -644,6 +646,16 @@
     hdps.setIntField("createTimeInteractions", &create_time_interactions);
     hdps.setIntField("createProfileScores", &create_profile_scores);
     hdps.setIntField("dbKeepOutputTables", &db_keep_output_tables);
+    
+    /* !!! hack!  for hd-DRS.  not supported. */
+    %if %symexist(hdps_Requested_Variables) %then %do;
+		%let hdps_max_requested_i = %sysfunc(countw(&hdps_Requested_Variables));
+
+    	%do requested_i = 1 %to &hdps_max_requested_i;
+	    	%let hdps_Requested_Variable = %scan(&hdps_Requested_Variables, &requested_i);
+    		hdps.callVoidMethod("addRequestedVariable", "&hdps_Requested_Variable");
+    	%end;
+    %end;
 
     %if &selection_mode = LOCAL %then %do;
       hdps.callVoidMethod("setMode", "LOCAL");

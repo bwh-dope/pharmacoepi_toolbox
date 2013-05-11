@@ -57,7 +57,7 @@ public class HdpsDbPatientController extends HdpsPatientController
 				this.patientViewName);
 		ResultSet r = s.executeQuery(sql);
 		r.next();
-		this.numPatients = r.getInt("num_patients");
+		this.setNumPatients(r.getInt("num_patients"));
 		r.close();
 		
 		sql = String.format(

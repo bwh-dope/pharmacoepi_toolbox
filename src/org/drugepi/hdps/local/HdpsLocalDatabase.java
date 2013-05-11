@@ -8,7 +8,7 @@ package org.drugepi.hdps.local;
 
 import java.io.*;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.drugepi.hdps.storage.*;
 
 import com.sleepycat.je.*;
@@ -46,7 +46,7 @@ public class HdpsLocalDatabase {
 		String storeName = String.format("HdpsStore_%s", RandomStringUtils.randomAlphabetic(8));
 		store = new EntityStore(env, storeName, storeConfig);
 		
-		System.out.printf("NOTE: Opened database with cache size %8.2f MB (%d%% of available)\n", 
+		System.out.printf("NOTE: Opened database with cache size %8.2f MB (%d percent of available)\n", 
 				((double) env.getMutableConfig().getCacheSize()) / (1024d * 1024d),
 				env.getMutableConfig().getCachePercent());
 

@@ -82,10 +82,12 @@ public class HdpsDbController extends HdpsController
 		ResultSet r = SqlUtils.executeSqlQuery(s, sql);
 
 		Statement hashStatement = this.connection.createStatement();
+		String hashFileName = Utils.getFilePath(this.hdps.tempDirectory,
+				"var_hash_" + this.randomSuffix + ".txt");
+		TabDelimitedFileWriter hashWriter = new TabDelimitedFileWriter(hashFileName);
+				
 		SqlUtils.addToSqlBatch(hashStatement, 
 				"CREATE TEMPORARY TABLE t_hashmap(var_id int, hash_value varchar(255))");
-		StringBuffer insertSql = new StringBuffer();
-		insertSql.append("INSERT INTO t_hashmap(var_id, hash_value)  ");
 		
 		while (r.next()) {
 			String codeName = r.getString("code");
@@ -100,16 +102,23 @@ public class HdpsDbController extends HdpsController
 			var.code = code;
 			
 			String h = var.getHashValue();
-			insertSql.append(String.format(
-					"SELECT %d, '%s' UNION ALL ",
-					r.getInt("var_id"), h));
+			String[] row = new String[2];
+			row[0] = Integer.toString(r.getInt("var_id"));
+			row[1] = h;
+			hashWriter.writeRow(row);
 			
 			if (r.getInt("consider_for_ps") == 1)
 				this.variablesToConsider.put(var.varName, var);
 		}
-		// extra pair at the end is a total hack but fixes the comma/list problem
-		insertSql.append("SELECT -1, ''");
-		SqlUtils.addToSqlBatch(hashStatement, insertSql.toString());
+		hashWriter.close();
+		
+		String insertSql = String.format(
+				"INSERT INTO t_hashmap " +
+				"SELECT * FROM EXTERNAL '%s' " +
+				"USING (DELIM '\t' REMOTESOURCE 'JDBC' QUOTEDVALUE DOUBLE)",
+			hashFileName);
+		System.out.println(insertSql);
+		SqlUtils.addToSqlBatch(hashStatement, insertSql);
 
 		String updateSql = String.format(
 				"UPDATE %s A " +
@@ -711,7 +720,7 @@ public class HdpsDbController extends HdpsController
 		c = null;
 		        
 		System.out.printf("NOTE: hd-PS wrote %d patients to cohort.\n",
-				this.getNumPatients());
+				this.patientController.getNumPatients());
 
 		if (fullOutputWriter != null)
 			fullOutputWriter.close();
@@ -860,13 +869,6 @@ public class HdpsDbController extends HdpsController
 		Connection c = DriverManager.getConnection(hdps.dbUrl, properties);
 		
 		return c;
-	}
-	
-	/**
-	 * @return		The number of patients read from the patient input file or database.
-	 */
-	public int getNumPatients() {
-		return(this.patientController.getNumPatients());
 	}
 	
 	/**

@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.*;
 import java.util.*;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.drugepi.hdps.storage.HdpsVariable;
 import org.drugepi.hdps.storage.comparators.*;
 import org.drugepi.util.TabDelimitedFileReader;
@@ -19,22 +19,25 @@ import org.junit.*;
  * 
  */
 public class HdpsTest {
-	private String dataDirectory;
-	private static String tempDirectoryBase;
+	private String tempDirectoryBase;
+	private String dataDirectory; 
+	private Properties properties;
 
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		tempDirectoryBase = "/Users/jeremy/Desktop/hdps_output/"
-			+ RandomStringUtils.randomAlphabetic(8);
 	}
 
 	@Before
 	public void setUp() throws Exception
 	{
-		dataDirectory = "/Users/jeremy/Documents/Windows Shared/Data/projects/hdps_java/";
+		this.properties = new Properties();
+	    this.properties.load(new FileInputStream("testing.properties"));
+	    this.dataDirectory = properties.getProperty("HDPS_DATA_DIRECTORY");
+		this.tempDirectoryBase = properties.getProperty("HDPS_TEMP_DIRECTORY") +
+				RandomStringUtils.randomAlphabetic(8);
 	}
 
 	/**
@@ -44,17 +47,13 @@ public class HdpsTest {
 	public void tearDown() throws Exception {
 	}
 
-	public String testHdps(String dataDirectory,
-			String tempDirectoryBase, String hdpsType, int zeroCellCorrection,
+	public String testHdps(String hdpsType, int zeroCellCorrection,
 			String rankingMethod) throws Exception {
 
 		System.out
 		.printf("TEST: Checking variable selection.  Mode = %s, Zero Cell = %d, Ranking = %s\n",
 				hdpsType, zeroCellCorrection, rankingMethod);
 
-		Properties properties = new Properties();
-	    properties.load(new FileInputStream("testing.properties"));
-		
 		String tempDirectory = String.format("%s/%s_ZC%d_%s",
 				tempDirectoryBase, hdpsType, zeroCellCorrection, rankingMethod);
 		File f = new File(tempDirectory);
@@ -87,7 +86,6 @@ public class HdpsTest {
 			hdps.addDimension("MD Proc", dataDirectory + "dim_mdproc.txt");
 			hdps.addDimension("Drugs", dataDirectory + "dim_drugs.txt");
 			hdps.addDimension("Amb DX", dataDirectory + "dim_ambdx.txt");
-
 		} else if (hdpsType == "db") {
 			hdps.setMode("DB");
 
@@ -250,9 +248,8 @@ public class HdpsTest {
 	@Test
 	public void testNoCorrBias() 
 	throws Exception {
-		String localResults = testHdps(dataDirectory, tempDirectoryBase,
-				"local", 0, Hdps.RANKING_METHOD_BIAS);
-		String dbResults = testHdps(dataDirectory, tempDirectoryBase, "db", 0,
+		String localResults = testHdps("local", 0, Hdps.RANKING_METHOD_BIAS);
+		String dbResults = testHdps("db", 0,
 				Hdps.RANKING_METHOD_BIAS);
 		checkVarsFile(localResults, dbResults, Hdps.RANKING_METHOD_BIAS);
 		checkCohortFile(localResults, dbResults);
@@ -261,9 +258,9 @@ public class HdpsTest {
 	@Test
 	public void testNoCorrExp() 
 	throws Exception {
-		String localResults = testHdps(dataDirectory, tempDirectoryBase, "local", 0,
+		String localResults = testHdps("local", 0,
 				Hdps.RANKING_METHOD_EXP);
-		String dbResults = testHdps(dataDirectory, tempDirectoryBase, "db", 0,
+		String dbResults = testHdps("db", 0,
 				Hdps.RANKING_METHOD_EXP);
 		checkVarsFile(localResults, dbResults, Hdps.RANKING_METHOD_EXP);
 	}	
@@ -271,9 +268,9 @@ public class HdpsTest {
 	@Test
 	public void testCorrExp() 
 	throws Exception {
-		String localResults = testHdps(dataDirectory, tempDirectoryBase, "local", 1,
+		String localResults = testHdps("local", 1,
 				Hdps.RANKING_METHOD_EXP);
-		String dbResults = testHdps(dataDirectory, tempDirectoryBase, "db", 1,
+		String dbResults = testHdps("db", 1,
 				Hdps.RANKING_METHOD_EXP);
 		checkVarsFile(localResults, dbResults, Hdps.RANKING_METHOD_EXP);
 	}	
@@ -281,9 +278,9 @@ public class HdpsTest {
 	@Test
 	public void testCorrBias() 
 	throws Exception {
-		String localResults = testHdps(dataDirectory, tempDirectoryBase, "local", 1,
+		String localResults = testHdps("local", 1,
 				Hdps.RANKING_METHOD_BIAS);
-		String dbResults = testHdps(dataDirectory, tempDirectoryBase, "db", 1, Hdps.RANKING_METHOD_BIAS);
+		String dbResults = testHdps("db", 1, Hdps.RANKING_METHOD_BIAS);
 		checkVarsFile(localResults, dbResults, Hdps.RANKING_METHOD_BIAS);
 	}
 }

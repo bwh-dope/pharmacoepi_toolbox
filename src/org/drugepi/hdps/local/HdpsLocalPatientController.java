@@ -27,12 +27,14 @@ public class HdpsLocalPatientController extends HdpsPatientController
 
         nExposed = 0;
         nOutcome = 0;
+        int n = 0;
         while ((row = reader.getNextRow()) != null) {
             String key = row[KEY_COLUMN_NUM];
             HdpsPatient patient = this.hdpsController.getPatientDatabase().get(key);
             if (patient == null) {
             	try {
 	            	patient = new HdpsPatient(this.hdps.getNumDimensions());
+	            	n++;
 	            	patient.id = key;
 	            	patient.exposed = (Integer.parseInt(row[EXPOSED_COLUMN_NUM]) != 0); 
 	            	patient.outcomeDichotomous = (Integer.parseInt(row[OUTCOME_COLUMN_NUM]) != 0);
@@ -59,10 +61,10 @@ public class HdpsLocalPatientController extends HdpsPatientController
             	this.hdpsController.getPatientDatabase().put(patient);
             }
         }
-        this.numPatients = (int) this.hdpsController.getPatientDatabase().count();
-        
-        if (this.numPatients == 0)
+        if (n== 0)
         	throw new HdpsException("No patients read.");
+
+        this.setNumPatients(n);
         
         reader.close();
         System.out.printf("NOTE: hd-PS patient read finished.  %d rows read.", 

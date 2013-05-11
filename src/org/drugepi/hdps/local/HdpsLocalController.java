@@ -117,7 +117,7 @@ public class HdpsLocalController extends HdpsController
         cursor.close();
         
 		System.out.printf("NOTE: hd-PS wrote %d patients to sparse output cohort.\n",
-				this.getPatientDatabase().count());
+				this.getNumPatients());
         outputWriter.close();
 	}
 	
@@ -189,7 +189,7 @@ public class HdpsLocalController extends HdpsController
         cursor.close();
         
 		System.out.printf("NOTE: hd-PS wrote %d patients to full output cohort.\n",
-				this.getPatientDatabase().count());
+				this.getNumPatients());
         outputWriter.close();
 	}	
 	
@@ -219,16 +219,6 @@ public class HdpsLocalController extends HdpsController
 	throws Exception
 	{
         this.database.close();
-	}
-	
-	/**
-	 * @return		The number of patients read from the patient input file or database.
-	 */
-	public int getNumPatients() {
-		if (this.getPatientDatabase() == null)
-			return 0;
-		
-		return (int) this.getPatientDatabase().count();
 	}
 	
 	public PrimaryIndex<String, HdpsPatient> getPatientDatabase() {

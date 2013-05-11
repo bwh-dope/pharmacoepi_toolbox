@@ -253,8 +253,10 @@ public abstract class HdpsController extends PharmacoepiTool
 			// find those not selected that have been requested
 			for (String requestedVarHash: this.hdps.requestedVariables) {
 				HdpsVariable var = h.remove(requestedVarHash);
-				if (var != null) 
+				if (var != null) {
+					var.selectedForPs = true;
 					additionalVariables.add(var);
+				}
 			}
 		}
 		
@@ -332,7 +334,13 @@ public abstract class HdpsController extends PharmacoepiTool
 	/**
 	 * @return		The number of patients read from the patient input file or database.
 	 */
-	public abstract int getNumPatients();
+	public int getNumPatients()
+	{
+		if (this.patientController == null)
+			return 0;
+		
+		return(this.patientController.getNumPatients());
+	}
 	
 	public HdpsPatientController getPatientController() {
 		return patientController;

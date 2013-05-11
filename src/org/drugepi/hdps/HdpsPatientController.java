@@ -23,7 +23,7 @@ public abstract class HdpsPatientController
 	public double sumOfOutcomes = 0;
 	public int numEvents = 0;
 	
-    protected int numPatients;
+    private int numPatients;
 
 	public RowReader reader;
 
@@ -39,6 +39,11 @@ public abstract class HdpsPatientController
 	public void setHdps(Hdps hdps) {
 		this.hdps = hdps;
 	}
+
+	public void setNumPatients(int numPatients) {
+		this.numPatients = numPatients;
+	}
+
 
 	public int getNumPatients() {
 		return numPatients;

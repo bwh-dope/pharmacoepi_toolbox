@@ -51,7 +51,7 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 	{
 		for (HdpsCode code : this.codeMap.values()) {
 			code.prevalence = (float) code.numUniqueOccurrences
-					/ (float) this.hdpsController.getPatientDatabase().count();
+					/ (float) this.hdpsController.getNumPatients();
 			if (code.prevalence > 0.5)
 				code.prevalence = 1.0 - code.prevalence;
 		}
@@ -310,7 +310,7 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 	}
 
 	protected void calculateBias(HdpsCode code) throws ClassNotFoundException {
-		double nTotal = (double) this.hdpsController.getPatientDatabase().count();
+		double nTotal = (double) this.hdpsController.getNumPatients();
 		double ptTotal = (double) this.patientController.ptTotal;
 		double e1Total = (double) this.patientController.nExposed;
 		double ptExposed = (double) this.patientController.ptExposed;
