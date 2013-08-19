@@ -14,12 +14,12 @@ import org.drugepi.util.*;
  * Abstract class from which all tools in the toolbox are derived.
  *  
  * @author Jeremy A. Rassen
- * @version 2.4.14
+ * @version 2.4.15
  *
  */
 public abstract class PharmacoepiTool {
 	public static String description = "Pharamcoepi Toolbox";
-	public static String version = "2.4.14";
+	public static String version = "2.4.15";
 	
 	private long startTime;
 	

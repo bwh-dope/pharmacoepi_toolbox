@@ -32,6 +32,12 @@
   %PUT %STR(NOTE: Copyright 2008-11 Division of Pharmacoepidemiology, Brigham and Womens Hospital);
 %mend;
 
+%macro hd_DeleteDataset(ds);
+	DATA &ds;
+		SET _null_;
+	RUN;
+%mend;
+
 %GLOBAL hd_LibraryExists;
 %macro hd_SetLibraryExists(dsname);
   %LET hd_LibraryExists = 1;
@@ -808,6 +814,9 @@
 %macro hd_AddPSModelResult(model_number, score_var, dataset_c, dataset_conv);
     *OPTION NONOTES;
 
+  %LET c_stat = .;
+  %LET converged = 0;
+
   PROC SQL NOPRINT;
     SELECT PUT(nValue2, 32.8)
     INTO :c_stat
@@ -827,6 +836,12 @@
 
 %macro hd_AddRegressionResult(dataset_cohort, procedure, model_number, score_var, est_name, dataset_est, dataset_conv);
     OPTION NONOTES;
+    
+    %LET n_patients = .;
+    %LET converged = .;
+    %LET point_est = .;
+    %LET ci_lower = .;
+    %LET ci_upper = .;
 
 	PROC SQL;
 		SELECT COUNT(*) 
@@ -846,16 +861,6 @@
   %END;
 
   PROC SQL NOPRINT;
-  	/*
-  	--- DEPRECATED
-    %IF %UPCASE(&procedure) = LOGISTIC %THEN %DO;
-      SELECT PUT(OddsRatioEst, 32.8), PUT(LowerCL, 32.8), PUT(UpperCL, 32.8)
-      INTO :point_est, :ci_lower, :ci_upper
-      FROM &dataset_est
-      WHERE UPCASE(effect) = UPCASE("&var_exposure");
-      
-    %END;
-    */
     %IF %UPCASE(&procedure) = LOGISTIC %THEN %DO;
       SELECT PUT(point_est, 32.8), PUT(ci_lower, 32.8), PUT(ci_upper, 32.8)
       INTO :point_est, :ci_lower, :ci_upper
@@ -885,6 +890,21 @@
 
 %macro hd_RunSinglePSModel(model_num, class_vars, indep_vars);
   %put NOTE: Running PS model &model_num;
+  %put NOTE: The PS model will predict &var_exposure;
+  %put NOTE: Independent variables, if any, are &indep_vars;
+  %put NOTE: Class variables, if any, are &class_vars;
+  
+  %hd_DeleteDataset(t_c);
+  %hd_DeleteDataset(t_converge);
+  %hd_DeleteDataset(hd_&model_num);
+ 
+  /* create a default output dataset with missing PS */
+  /* this will exist even if the logistic model fails */
+  DATA hd_&model_num;
+  	SET &output_cohort(KEEP=&var_patient_id);
+  	ps&model_num = .;
+  RUN;
+  
   ods output Association = t_c;
   ods output ConvergenceStatus = t_converge;
   proc logistic data = &output_cohort(keep=&var_patient_id &var_exposure &class_vars &indep_vars) descending;
@@ -954,6 +974,13 @@
 
 %macro hd_RunSingleDRSModel(model_num, class_vars, indep_vars);
   %put NOTE: Running DRS model &model_num;
+  %put NOTE: The DRS model will predict &var_outcome;
+  %put NOTE: Independent variables, if any, are &indep_vars;
+  %put NOTE: Class variables, if any, are &class_vars;
+
+  %hd_DeleteDataset(t_c);
+  %hd_DeleteDataset(t_converge);
+
   ods output Association = t_c;
   ods output ConvergenceStatus = t_converge;
 
@@ -1072,10 +1099,7 @@
 	RUN;
   %end;
   
-  /* hack -- much faster than deleting the dataset with proc datasets */
-  data t_rank_out;
-  	set _null_;
-  run;
+  %hd_DeleteDataset(t_rank_out);
   
   proc rank data=&dataset out=t_rank_out groups=10;
     var &analysis_score_var&model_num;
@@ -1106,6 +1130,10 @@
 %mend;
 
 %macro hd_Match(dataset, model_number);
+  %hd_DeleteDataset(hd_Export);
+  %hd_DeleteDataset(hd_Import);  
+  %hd_DeleteDataset(&dataset.Match);  
+
   DATA hd_Export;
     SET &dataset;
 
@@ -1125,7 +1153,6 @@
     put "NOTE: Internal match program beginning";
   
     match.exceptionDescribe(1);
-  
   
     match.callVoidMethod("initMatch", "greedy", "2");
 
@@ -1183,6 +1210,10 @@
   
   %if &score_type_1 = 1 %then %do;
     %put NOTE: Running outcome model 1;
+    
+    %hd_DeleteDataset(t_est);
+    %hd_DeleteDataset(t_converge);
+    
     ods output ParameterEstimates = t_est;
     ods output ConvergenceStatus = t_converge;
     proc logistic data = &analysis_cohort descending;
@@ -1195,6 +1226,10 @@
     %if &&score_type_&NM = 1 %then %do;
       %put NOTE: Running outcome model &NM, trimming=&trimming;
       
+      %hd_DeleteDataset(t_est);  
+      %hd_DeleteDataset(t_converge);  
+      %hd_DeleteDataset(t_analysis_cohort);  
+
       %hd_MakeDeciles(&analysis_cohort, &NM, &trimming);
       
       data t_analysis_cohort;
@@ -1225,6 +1260,10 @@
 
   %if &score_type_1 = 1 %then %do;
     %put NOTE: Running outcome model 1;
+    
+	%hd_DeleteDataset(t_est);  
+	%hd_DeleteDataset(t_converge);  
+ 
     ods output ParameterEstimates = t_est;
     ods output ConvergenceStatus = t_converge;
     proc phreg data = &analysis_cohort descending;
@@ -1236,6 +1275,10 @@
   %do NM = 2 %to &hd_NumModels;
     %if &&score_type_&NM = 1 %then %do;
       %put NOTE: Running outcome model &NM;
+      
+      %hd_DeleteDataset(t_est);  
+      %hd_DeleteDataset(t_converge);  
+      %hd_DeleteDataset(t_analysis_cohort);  
       
       %hd_MakeDeciles(&analysis_cohort, &NM, &trimming);
       
@@ -1262,7 +1305,12 @@
     %if &&score_type_&NM = 1 %then %do;
       %put NOTE: Running matched output model &NM;
       %hd_Match(&analysis_cohort, &NM);
-      %if &hd_Error > 0 %then %goto EXIT_WITH_ERROR;
+      /* !!! ignore errors from matching */
+      %LET hd_Error = 0;
+      /*%if &hd_Error > 0 %then %goto EXIT_WITH_ERROR;*/
+      
+      %hd_DeleteDataset(t_est);  
+      %hd_DeleteDataset(t_converge);  
       
       ods output ParameterEstimates = t_est;
       ods output ConvergenceStatus = t_converge;
@@ -1286,7 +1334,12 @@
     %if &&score_type_&NM = 1 %then %do;
       %put NOTE: Running matched output model &NM;
       %hd_Match(&analysis_cohort, &NM);
-      %if &hd_Error > 0 %then %goto EXIT_WITH_ERROR;
+      /* !!! ignore errors from matching */
+      /*%if &hd_Error > 0 %then %goto EXIT_WITH_ERROR;*/
+      
+      %hd_DeleteDataset(t_est);  
+      %hd_DeleteDataset(t_converge);  
+      %hd_DeleteDataset(t_analysis_cohort);  
       
       ods output ParameterEstimates = t_est;
       ods output ConvergenceStatus = t_converge;
@@ -1454,37 +1507,6 @@
 
   %PUT NOTE: Setting Java classpath to &CP_new_classpath;
   OPTIONS SET=CLASSPATH "&CP_new_classpath";
-%mend;
-
-%macro hd_UploadResults;
-  %LET hd_JavaError = 1;
-  
-  %LET local_analysis_num = %CMPRES(&analysis_num);
-
-  %PUT NOTE: Uploading results to hdpharmacoepi.org with analysis number &local_analysis_num ;
-
-  DATA _null_;
-    DECLARE JavaObj uploader("org/drugepi/upload/Uploader");
-
-    uploader.exceptionDescribe(1);
-  
-    uploader.callStaticVoidMethod("uploadFile", "&local_analysis_num", "&path_temp_dir.output_all_vars.txt");
-    uploader.callStaticVoidMethod("uploadFile", "&local_analysis_num", "&path_temp_dir.output_estimates.txt");
-    uploader.callStaticVoidMethod("uploadFile", "&local_analysis_num", "&path_temp_dir.output_z_bias.txt");
-    uploader.callStaticVoidMethod("uploadFile", "&local_analysis_num", "&path_temp_dir.output_dimension_codes.txt");
-
-    rc = uploader.ExceptionCheck(e);
-    IF NOT e AND _ERROR_ = 0 THEN DO;
-      CALL SYMPUT("hd_JavaError", 0);
-      uploader.delete();
-    END;
-  RUN;
-  %IF &hd_JavaError > 0 %THEN %GOTO EXIT_WITH_ERROR;
-
-  %EXIT_WITH_ERROR: ;
-  %LET hd_Error = 1;
-  
-  %EXIT_MACRO: ; 
 %mend;
 
 %macro hd_CheckParameterSpelling(param1, param2, default=);
@@ -1759,7 +1781,7 @@
       VALUES ("top_n", "%QUOTE(&top_n)")
       VALUES ("hd_k", "%QUOTE(&k)")
       VALUES ("frequency_min", "%QUOTE(&frequency_min)")
-      VALUES ("upload_results", "%QUOTE(&upload_results)")
+      VALUES ("upload_results", "0")
       VALUES ("analysis_num", "%QUOTE(&analysis_num)")
       VALUES ("ranking_method", "%QUOTE(&ranking_method)")
       VALUES ("outcome_type", "%QUOTE(&outcome_type)")
@@ -1938,14 +1960,6 @@
   %if &hd_Error = 0 %then %hd_RunVarSelection;
   %else %goto EXIT_ERROR;
 
-  %if &hd_Error = 0 %then %do;
-    %if &upload_results = 1 %then %do;
-      %hd_UploadResults;
-    %end;
-  %end;
-  %else %goto EXIT_ERROR;
-  
-
   %PUT NOTE: hd-PS macro done ;
   
   %GOTO EXIT_CLEAN;
@@ -1985,13 +1999,6 @@
   %if &hd_Error = 0 %then %hd_PrintDiagnostic;
   %else %goto EXIT_ERROR;
 
-  %if &hd_Error = 0 %then %do;
-    %if &upload_results = 1 %then %do;
-      %hd_UploadResults;
-    %end;
-  %end;
-  %else %goto EXIT_ERROR;
-
   %PUT NOTE: hd-PS macro done ;
   
   %GOTO EXIT_CLEAN;
@@ -2029,13 +2036,6 @@
   %else %goto EXIT_ERROR;
     
   %if &hd_Error = 0 %then %hd_PrintDiagnostic;
-  %else %goto EXIT_ERROR;
-
-  %if &hd_Error = 0 %then %do;
-    %if &upload_results = 1 %then %do;
-      %hd_UploadResults;
-    %end;
-  %end;
   %else %goto EXIT_ERROR;
 
   %PUT NOTE: hd-PS macro done ;
@@ -2103,13 +2103,6 @@
   %else %goto EXIT_ERROR;
 
   %if &hd_Error = 0 %then %hd_PrintDiagnostic;
-  %else %goto EXIT_ERROR;
-
-  %if &hd_Error = 0 %then %do;
-    %if &upload_results = 1 %then %do;
-      %hd_UploadResults;
-    %end;
-  %end;
   %else %goto EXIT_ERROR;
 
   %PUT NOTE: hd-PS macro done ;

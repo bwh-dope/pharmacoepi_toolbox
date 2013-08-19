@@ -123,7 +123,7 @@
 	%IF &match_JavaError > 0 %THEN %GOTO EXIT_WITH_ERROR;
 	RUN;
 
-	PROC IMPORT OUT=match_Import
+	PROC IMPORT OUT=work.match_Import
 			DATAFILE= "&working_directory.matches.txt" 
 			DBMS=TAB REPLACE;
 			GETNAMES=YES;
@@ -134,7 +134,7 @@
 		BY &var_patient_id;
 	RUN;
 	
-	PROC SORT DATA=match_Import;
+	PROC SORT DATA=work.match_Import;
 		BY pat_id;
 	RUN;
 	

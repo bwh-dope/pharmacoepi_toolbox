@@ -260,7 +260,7 @@ public abstract class HdpsController extends PharmacoepiTool
 			}
 		}
 		
-		System.out.printf("NOTE: %d variables were requested for output; %d were added\n", 
+		System.out.printf("NOTE: %d additional variables were requested for output; of these, %d were added\n", 
 				hdps.requestedVariables.size(), additionalVariables.size());
 		
 		return additionalVariables;

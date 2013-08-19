@@ -117,7 +117,6 @@ public class HdpsDbController extends HdpsController
 				"SELECT * FROM EXTERNAL '%s' " +
 				"USING (DELIM '\t' REMOTESOURCE 'JDBC' QUOTEDVALUE DOUBLE)",
 			hashFileName);
-		System.out.println(insertSql);
 		SqlUtils.addToSqlBatch(hashStatement, insertSql);
 
 		String updateSql = String.format(
