@@ -69,7 +69,7 @@ public class TabDelimitedFileWriter extends RowWriter {
      * @param fieldNames  Names of the fields for the header row of the file.
      * @throws Exception
      */
-    public void writeHeaderRow(String[] fieldNames)
+    public synchronized void writeHeaderRow(String[] fieldNames)
     throws Exception
     {
         this.fw.write(Utils.tabJoin(fieldNames));

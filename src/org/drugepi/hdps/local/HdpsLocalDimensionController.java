@@ -421,10 +421,9 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 		}
 	}
 
-	public void writeCodes(RowWriter writer)
+	public synchronized void writeCodes(RowWriter writer)
 	throws Exception
 	{
-		// TODO: This is inefficient.  Should be re-done.
 		List<HdpsCode> codes = new ArrayList<HdpsCode>(this.codeMap.values());
 		Collections.sort(codes, new HdpsCodeIdComparator());
 
@@ -443,7 +442,7 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 		// not yet implemented -- necessary? 
 	}
 
-	public Map<String, HdpsVariable> getVariablesToConsider()
+	public synchronized Map<String, HdpsVariable> getVariablesToConsider()
 	throws Exception 
 	{
 		Map<String, HdpsVariable> varsToConsider = new HashMap<String, HdpsVariable>();

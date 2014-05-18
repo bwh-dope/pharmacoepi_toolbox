@@ -119,7 +119,7 @@ public abstract class HdpsController extends PharmacoepiTool
         this.takeDimensionDoneActions();
     }
 	
-	public void writeDimensionInfoFile(String outputFileName) throws Exception {
+	public synchronized void writeDimensionInfoFile(String outputFileName) throws Exception {
 		final String[] outputFields = HdpsCode.outputFieldNames;
 
 		TabDelimitedFileWriter outputWriter = new TabDelimitedFileWriter(
@@ -134,7 +134,7 @@ public abstract class HdpsController extends PharmacoepiTool
 		outputWriter.close();
 	}
 		
-	protected void writeVariableInfoFile(String fileName, List<HdpsVariable> vars)
+	protected synchronized void writeVariableInfoFile(String fileName, List<HdpsVariable> vars)
 	throws Exception
 	{
 		String[] outputFields = HdpsVariable.outputFieldNames; 
@@ -266,7 +266,7 @@ public abstract class HdpsController extends PharmacoepiTool
 		return additionalVariables;
 	}
 
-	protected void doOutput()
+	protected synchronized void doOutput()
 	throws Exception
 	{
 		List<HdpsVariable> selectedVariables = this.selectVariables();
