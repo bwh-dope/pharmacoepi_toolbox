@@ -11,6 +11,10 @@ jar/*.jar
 
 target
 
+.settings
+
+r-package
+
 # Compiled source #
 ###################
 *.com
