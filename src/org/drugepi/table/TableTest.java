@@ -35,7 +35,7 @@ public class TableTest {
 		TableCreator tm = new TableCreator();
 
 		tm.createTablesFromWorkbook(properties
-				.getProperty("TABLE_INPUT_TEMPLATE"));
+				.getProperty("TABLE_INPUT_TEMPLATE_1"));
 		tm.addCellToTable("Table E1", "ace_rx", "FULL1", "0.264465");
 		tm.addCellToTable("Table E1", "ace_rx", "FULL2", "0.272683");
 		tm.addCellToTable("Table E1", "ace_rx", "FULL3", "0.294818");
@@ -616,9 +616,12 @@ public class TableTest {
 		tm.addCellToTable("Table E1", "mdist3", "THREE_WAY1", "0.547729");
 		tm.addCellToTable("Table E1", "mdist3", "THREE_WAY2", "0.963699");
 
-		tm.writeTablesToWorkbook(properties.getProperty("TABLE_OUTPUT_1"),
+		tm.writeTablesToWorkbook(properties.getProperty("TABLE_INPUT_TEMPLATE_1"),
+				properties.getProperty("TABLE_OUTPUT_1"));
+
+		tm.writeTablesToWorkbook(properties.getProperty("TABLE_INPUT_TEMPLATE_2"),
 				properties.getProperty("TABLE_OUTPUT_2"));
 
-		System.out.println(tm.toString());
+//		System.out.println(tm.toString());
 	}
 }

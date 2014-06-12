@@ -51,11 +51,12 @@ public class MatchTest {
 			{
 				g.addMatchGroup(Integer.toString(j));
 			}
-			g.parallelMatchingMode = 1;
+			g.parallelMatchingMode = 0;
 			g.matchRatio = matchRatio;
 			g.fixedRatio = 0;
-			g.caliper = 0.05;
+			g.caliper = 0.025;
 			g.addPatients(this.dataDirectory + String.format("/match_test_%d.txt", numGroups));
+
 			g.run();
 		}
 	}
@@ -71,6 +72,7 @@ public class MatchTest {
 		runMatch("nn", 2, 6);
 		runMatch("nn", 2, 7);
 		runMatch("nn", 2, 8);
+		runMatch("nn", 2, 100);
 		runMatch("balanced_nn", 2, 1);
 		runMatch("balanced_nn", 2, 2);
 		runMatch("balanced_nn", 2, 3);
@@ -79,6 +81,7 @@ public class MatchTest {
 		runMatch("balanced_nn", 2, 6);
 		runMatch("balanced_nn", 2, 7);
 		runMatch("balanced_nn", 2, 8);
+		runMatch("balanced_nn", 2, 100);
 		runMatch("greedy", 2, 1);
 		runMatch("greedy", 2, 2);
 		runMatch("greedy", 2, 3);
@@ -87,6 +90,7 @@ public class MatchTest {
 		runMatch("greedy", 2, 6);
 		runMatch("greedy", 2, 7);
 		runMatch("greedy", 2, 8);
+		runMatch("greedy", 2, 100);
 	}
 
 	@Test
