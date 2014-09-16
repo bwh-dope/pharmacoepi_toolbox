@@ -80,8 +80,16 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 		HdpsCodePatientLink codePatientLink = null;
 		
 		while ((row = this.reader.getNextRow()) != null) {
+			rowsRead++;
+
 			String codeString = row[codeColumn];
 			String patientId = row[patientColumn];
+			
+			if ((codeString == null) ||
+				(codeString.length() == 0) ||
+				(patientId == null) ||
+				(patientId.length() == 0)) 
+				continue;
 
 			if ((patient == null) || (! patient.id.equals(patientId)))
 				patient = this.hdpsController.getPatientDatabase().get(patientId);
@@ -128,7 +136,6 @@ public class HdpsLocalDimensionController extends HdpsDimensionController {
 				
 				cursor.close();
 			}
-			rowsRead++;
 		}
 		
 		// one last time, just in case
