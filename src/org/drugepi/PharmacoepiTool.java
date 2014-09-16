@@ -14,7 +14,7 @@ import org.drugepi.util.*;
  * Abstract class from which all tools in the toolbox are derived.
  *  
  * @author Jeremy A. Rassen
- * @version 2.4.15
+ * @version 2.4.18
  *
  */
 public abstract class PharmacoepiTool {
