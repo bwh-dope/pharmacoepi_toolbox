@@ -36,6 +36,8 @@ public class HdpsLocalDatabase {
 		envConfig = new EnvironmentConfig();
 		envConfig.setTransactional(false);
 		envConfig.setAllowCreate(true);
+		// avoid error with "too many open files" (default value is 100)
+		envConfig.setConfigParam(EnvironmentConfig.LOG_FILE_CACHE_SIZE, "50");
 		env = new Environment(new File(homeDirectory), envConfig);
 
 		StoreConfig storeConfig = new StoreConfig();
