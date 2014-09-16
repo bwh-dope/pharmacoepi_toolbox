@@ -19,7 +19,7 @@ import org.drugepi.util.*;
  */
 public abstract class PharmacoepiTool {
 	public static String description = "Pharamcoepi Toolbox";
-	public static String version = "2.4.17";
+	public static String version = "2.4.18";
 	
 	private long startTime;
 	
