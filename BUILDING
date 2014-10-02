@@ -1,0 +1,10 @@
+This project requires Apache Maven to build. First enter the libs/ directory
+and run the following at the command line:
+
+$ mvn install
+
+Next go to the root of this repository and run
+
+$ mvn package
+
+If all goes well, the desired jar files can be found in the target directory.
