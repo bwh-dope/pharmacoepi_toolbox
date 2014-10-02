@@ -1,0 +1,7 @@
+See the documentation/ folder for examples on how to call the tools from R and
+SAS. In order to build the Javadocs, run the following command in the root
+folder of the repository:
+
+$ mvn site
+
+See the docs/ folder for the generated Javadocs.
