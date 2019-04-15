@@ -1919,7 +1919,7 @@
 %mend;
 
 %macro hd_ReadMacroVariables;
-  PROC SQL;
+  PROC SQL noprint;
     SELECT param_name, param_value
     INTO :param_name1-:param_name150, :param_value1-:param_value150
     FROM hd_parameters;
